@@ -11,6 +11,10 @@ as $$
   select role from public.profiles where id = auth.uid() limit 1
 $$;
 
+-- Ensure anon and authenticated can call it (required for RLS)
+grant execute on function public.get_my_role() to anon;
+grant execute on function public.get_my_role() to authenticated;
+
 -- Drop policies that use (select role from public.profiles where id = auth.uid())
 drop policy if exists "Active cars are viewable by everyone; owners and admins see all" on public.cars;
 drop policy if exists "Admins can manage all profiles" on public.profiles;

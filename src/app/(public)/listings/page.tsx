@@ -10,85 +10,89 @@ export default async function ListingsPage({
   searchParams: Promise<{ start?: string; end?: string; city?: string; type?: string }>;
 }) {
   const supabase = await createClient();
-  const params = await searchParams;
-  const start = params.start;
-  const end = params.end;
-  const city = params.city;
-  const carType = params.type;
+  const params = searchParams instanceof Promise ? await searchParams : searchParams;
+  const start = params?.start;
+  const end = params?.end;
+  const city = params?.city;
+  const carType = params?.type;
 
-  let query = supabase
-    .from('cars')
-    .select('id, make, model, year, car_type, location_city, daily_rate_zwl, image_urls, description, owner_id')
-    .eq('is_active', true)
-    .order('created_at', { ascending: false });
-
-  if (city) query = query.eq('location_city', city);
-  if (carType) query = query.eq('car_type', carType);
-
-  const { data: cars, error } = await query;
-
-  if (error) {
+  function renderError(message: string, detail?: string) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <h1 className="text-2xl font-bold text-slate-800">Browse cars</h1>
         <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4">
-          <p className="font-medium text-red-800">Failed to load listings.</p>
-          <p className="mt-1 text-sm text-red-700">
-            {error.message}
-          </p>
+          <p className="font-medium text-red-800">{message}</p>
+          {detail && <p className="mt-1 text-sm text-red-700">{detail}</p>}
           <p className="mt-3 text-sm text-red-600">
-            Check that your Supabase project has the tables created (run the migrations in{" "}
-            <code className="rounded bg-red-100 px-1 py-0.5">supabase/migrations</code>
-            ) and that <code className="rounded bg-red-100 px-1 py-0.5">.env.local</code> has the correct{" "}
-            <code className="rounded bg-red-100 px-1 py-0.5">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
-            <code className="rounded bg-red-100 px-1 py-0.5">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>.
+            Run all migrations in Supabase SQL Editor (001 through 005). If you see &quot;infinite recursion&quot;, run{" "}
+            <code className="rounded bg-red-100 px-1 py-0.5">005_fix_rls_recursion.sql</code>.
           </p>
         </div>
       </div>
     );
   }
 
-  let carIds = (cars ?? []).map((c) => c.id);
-  if (start && end && carIds.length > 0) {
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-    const days: string[] = [];
-    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-      days.push(d.toISOString().slice(0, 10));
+  try {
+    let query = supabase
+      .from('cars')
+      .select('id, make, model, year, car_type, location_city, daily_rate_zwl, image_urls, description, owner_id')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+
+    if (city) query = query.eq('location_city', city);
+    if (carType) query = query.eq('car_type', carType);
+
+    const { data: cars, error } = await query;
+
+    if (error) {
+      return renderError('Failed to load listings.', error.message);
     }
-    const { data: availability } = await supabase
-      .from('car_availability')
-      .select('car_id')
-      .in('car_id', carIds)
-      .in('available_date', days)
-      .eq('is_available', true);
-    const availableCountByCar: Record<string, number> = {};
-    availability?.forEach((a) => {
-      availableCountByCar[a.car_id] = (availableCountByCar[a.car_id] ?? 0) + 1;
-    });
-    carIds = carIds.filter((id) => availableCountByCar[id] === days.length);
-  }
 
-  const filteredCars = (cars ?? []).filter((c) => carIds.includes(c.id));
+    let carIds = (cars ?? []).map((c) => c.id);
+    if (start && end && carIds.length > 0) {
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      const days: string[] = [];
+      for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+        days.push(d.toISOString().slice(0, 10));
+      }
+      const { data: availability } = await supabase
+        .from('car_availability')
+        .select('car_id')
+        .in('car_id', carIds)
+        .in('available_date', days)
+        .eq('is_available', true);
+      const availableCountByCar: Record<string, number> = {};
+      availability?.forEach((a) => {
+        availableCountByCar[a.car_id] = (availableCountByCar[a.car_id] ?? 0) + 1;
+      });
+      carIds = carIds.filter((id) => availableCountByCar[id] === days.length);
+    }
 
-  return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="text-2xl font-bold text-slate-800">Browse cars</h1>
-      <ListingsFilters
-        start={start}
-        end={end}
-        city={city}
-        type={carType}
-      />
-      <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {filteredCars.length === 0 ? (
-          <p className="col-span-full text-gray-500">No cars match your filters.</p>
-        ) : (
-          filteredCars.map((car) => (
-            <CarCard key={car.id} car={car} />
-          ))
-        )}
+    const filteredCars = (cars ?? []).filter((c) => carIds.includes(c.id));
+
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <h1 className="text-2xl font-bold text-slate-800">Browse cars</h1>
+        <ListingsFilters
+          start={start}
+          end={end}
+          city={city}
+          type={carType}
+        />
+        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {filteredCars.length === 0 ? (
+            <p className="col-span-full text-gray-500">No cars match your filters.</p>
+          ) : (
+            filteredCars.map((car) => (
+              <CarCard key={car.id} car={car} />
+            ))
+          )}
+        </div>
       </div>
-    </div>
-  );
+    );
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    return renderError('Something went wrong.', message);
+  }
 }
