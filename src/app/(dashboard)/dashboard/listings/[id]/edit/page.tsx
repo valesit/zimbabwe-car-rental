@@ -27,13 +27,13 @@ export default async function EditListingPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <Link href="/dashboard" className="text-sm text-gray-600 hover:text-gray-900">
+      <Link href="/dashboard" className="text-sm text-gray-600 hover:text-slate-800">
         &larr; Dashboard
       </Link>
-      <h1 className="mt-4 text-2xl font-bold text-gray-900">Edit {car.make} {car.model}</h1>
+      <h1 className="mt-4 text-2xl font-bold text-slate-800">Edit {car.make} {car.model}</h1>
       <CarForm car={car} cities={cities ?? []} />
       <div className="mt-12">
-        <h2 className="text-lg font-semibold text-gray-900">Availability</h2>
+        <h2 className="text-lg font-semibold text-slate-800">Availability</h2>
         <p className="mt-1 text-sm text-gray-500">Block or open dates for this car.</p>
         <AvailabilityEditor carId={id} />
       </div>

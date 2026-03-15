@@ -26,7 +26,7 @@ export default async function AdminLayout({
       <nav className="border-b border-gray-200 bg-gray-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-10 gap-6">
-            <Link href="/admin" className="inline-flex items-center border-b-2 border-transparent px-1 pt-px text-sm font-medium text-gray-900">
+            <Link href="/admin" className="inline-flex items-center border-b-2 border-transparent px-1 pt-px text-sm font-medium text-slate-800">
               Overview
             </Link>
             <Link href="/admin/cars" className="inline-flex items-center border-b-2 border-transparent px-1 pt-px text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">

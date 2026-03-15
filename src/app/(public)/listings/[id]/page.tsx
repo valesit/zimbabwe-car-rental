@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { BookingForm } from '@/components/BookingForm';
 import { CarReviews } from '@/components/CarReviews';
+import { getCarTypeLabel } from '@/types/database';
 
 export const revalidate = 60;
 
@@ -57,7 +58,7 @@ export default async function CarDetailPage({
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <Link href="/listings" className="text-sm text-gray-600 hover:text-gray-900">
+      <Link href="/listings" className="text-sm text-gray-600 hover:text-slate-800">
         &larr; Back to listings
       </Link>
       <div className="mt-6 grid gap-8 lg:grid-cols-3">
@@ -78,22 +79,22 @@ export default async function CarDetailPage({
               </div>
             )}
           </div>
-          <h1 className="mt-4 text-2xl font-bold text-gray-900">
+          <h1 className="mt-4 text-2xl font-bold text-slate-800">
             {car.make} {car.model} ({car.year})
           </h1>
-          <p className="mt-2 capitalize text-gray-600">{car.car_type}</p>
+          <p className="mt-2 text-gray-600">{getCarTypeLabel(car.car_type)}</p>
           <p className="text-gray-600">{car.location_city}{car.location_detail ? ` · ${car.location_detail}` : ''}</p>
           {car.description && (
             <p className="mt-4 text-gray-700">{car.description}</p>
           )}
           <div className="mt-8">
-            <h2 className="text-lg font-semibold text-gray-900">Reviews</h2>
+            <h2 className="text-lg font-semibold text-slate-800">Reviews</h2>
             <CarReviews reviews={reviews ?? []} />
           </div>
         </div>
         <div>
           <div className="sticky top-4 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-slate-800">
               ZWL {Number(car.daily_rate_zwl).toLocaleString()}
               <span className="text-base font-normal text-gray-500"> / day</span>
             </p>

@@ -39,7 +39,7 @@ export function NewTicketForm() {
 
   return (
     <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-      <h2 className="text-lg font-semibold text-gray-900">New ticket</h2>
+      <h2 className="text-lg font-semibold text-slate-800">New ticket</h2>
       <label className="block">
         <span className="text-sm font-medium text-gray-700">Subject</span>
         <input

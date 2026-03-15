@@ -1,4 +1,4 @@
-# Zimbabwe Car Rental (MVP)
+# Skyrise Car Rental (MVP)
 
 A Turo-style car rental platform for Zimbabwe: list cars, book by availability, leave reviews, and manage support. Built with Next.js 14 and Supabase (PostgreSQL).
 

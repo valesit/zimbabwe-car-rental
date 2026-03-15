@@ -36,10 +36,10 @@ export default async function BookingDetailPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <Link href="/dashboard" className="text-sm text-gray-600 hover:text-gray-900">
+      <Link href="/dashboard" className="text-sm text-gray-600 hover:text-slate-800">
         &larr; Dashboard
       </Link>
-      <h1 className="mt-4 text-2xl font-bold text-gray-900">Booking details</h1>
+      <h1 className="mt-4 text-2xl font-bold text-slate-800">Booking details</h1>
       <div className="mt-6 rounded-lg border border-gray-200 p-6">
         <p className="font-medium">
           {car.make} {car.model} ({car.year})
@@ -50,13 +50,13 @@ export default async function BookingDetailPage({
         </p>
         <p className="text-gray-700">Status: {booking.status}</p>
         <p className="mt-2 font-medium">ZWL {Number(booking.total_amount_zwl).toLocaleString()}</p>
-        <Link href={`/listings/${car.id}`} className="mt-4 inline-block text-sm text-gray-900 underline">
+        <Link href={`/listings/${car.id}`} className="mt-4 inline-block text-sm text-slate-800 underline">
           View listing
         </Link>
       </div>
       {canReview && (
         <div className="mt-8">
-          <h2 className="text-lg font-semibold text-gray-900">Leave a review</h2>
+          <h2 className="text-lg font-semibold text-slate-800">Leave a review</h2>
           <LeaveReviewForm
             bookingId={id}
             revieweeId={car.owner_id}

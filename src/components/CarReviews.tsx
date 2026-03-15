@@ -15,7 +15,7 @@ export function CarReviews({ reviews }: { reviews: ReviewRow[] }) {
       {reviews.map((r) => (
         <li key={r.id} className="border-b border-gray-100 pb-3 last:border-0">
           <div className="flex items-center gap-2">
-            <span className="font-medium text-gray-900">
+            <span className="font-medium text-slate-800">
               {(Array.isArray(r.reviewer) ? r.reviewer[0] : r.reviewer)?.display_name ?? 'Guest'}
             </span>
             <span className="text-amber-500">{'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}</span>

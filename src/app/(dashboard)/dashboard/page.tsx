@@ -24,11 +24,11 @@ export default async function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+      <h1 className="text-2xl font-bold text-slate-800">Dashboard</h1>
       <div className="mt-8 grid gap-8 lg:grid-cols-2">
         <section>
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">My bookings</h2>
+            <h2 className="text-lg font-semibold text-slate-800">My bookings</h2>
             <Link href="/dashboard/bookings" className="text-sm text-gray-600 hover:underline">
               View all
             </Link>
@@ -52,7 +52,7 @@ export default async function DashboardPage() {
                   </div>
                   <Link
                     href={`/dashboard/bookings/${b.id}`}
-                    className="text-sm font-medium text-gray-900 hover:underline"
+                    className="text-sm font-medium text-slate-800 hover:underline"
                   >
                     View
                   </Link>
@@ -64,7 +64,7 @@ export default async function DashboardPage() {
         </section>
         <section>
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">My listings</h2>
+            <h2 className="text-lg font-semibold text-slate-800">My listings</h2>
             <Link
               href="/dashboard/listings/new"
               className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800"
@@ -84,7 +84,7 @@ export default async function DashboardPage() {
                   </div>
                   <Link
                     href={`/dashboard/listings/${car.id}/edit`}
-                    className="text-sm font-medium text-gray-900 hover:underline"
+                    className="text-sm font-medium text-slate-800 hover:underline"
                   >
                     Edit
                   </Link>
@@ -95,7 +95,7 @@ export default async function DashboardPage() {
         </section>
       </div>
       <div className="mt-8">
-        <Link href="/support" className="text-gray-600 hover:text-gray-900 underline">
+        <Link href="/support" className="text-gray-600 hover:text-slate-800 underline">
           Support tickets
         </Link>
       </div>

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import type { Car } from '@/types/database';
+import { getCarTypeLabel } from '@/types/database';
 
 interface CarCardProps {
   car: Pick<Car, 'id' | 'make' | 'model' | 'year' | 'car_type' | 'location_city' | 'daily_rate_zwl' | 'image_urls' | 'description'>;
@@ -30,12 +31,12 @@ export function CarCard({ car }: CarCardProps) {
         )}
       </div>
       <div className="flex flex-1 flex-col p-4">
-        <h2 className="font-semibold text-gray-900">
+        <h2 className="font-semibold text-slate-800">
           {car.make} {car.model} ({car.year})
         </h2>
-        <p className="mt-1 text-sm text-gray-500 capitalize">{car.car_type}</p>
+        <p className="mt-1 text-sm text-gray-500">{getCarTypeLabel(car.car_type)}</p>
         <p className="mt-1 text-sm text-gray-600">{car.location_city}</p>
-        <p className="mt-2 font-medium text-gray-900">
+        <p className="mt-2 font-medium text-slate-800">
           ZWL {Number(car.daily_rate_zwl).toLocaleString()} <span className="text-sm font-normal text-gray-500">/ day</span>
         </p>
       </div>

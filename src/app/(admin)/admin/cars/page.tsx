@@ -14,7 +14,7 @@ export default async function AdminCarsPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="text-2xl font-bold text-gray-900">Cars</h1>
+      <h1 className="text-2xl font-bold text-slate-800">Cars</h1>
       <div className="mt-6 overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead>
@@ -33,7 +33,7 @@ export default async function AdminCarsPage() {
               return (
                 <tr key={car.id}>
                   <td className="px-4 py-3">
-                    <Link href={`/listings/${car.id}`} className="font-medium text-gray-900 hover:underline">
+                    <Link href={`/listings/${car.id}`} className="font-medium text-slate-800 hover:underline">
                       {car.make} {car.model} ({car.year})
                     </Link>
                   </td>

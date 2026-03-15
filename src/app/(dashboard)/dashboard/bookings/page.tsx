@@ -17,10 +17,10 @@ export default async function BookingsPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <Link href="/dashboard" className="text-sm text-gray-600 hover:text-gray-900">
+      <Link href="/dashboard" className="text-sm text-gray-600 hover:text-slate-800">
         &larr; Dashboard
       </Link>
-      <h1 className="mt-4 text-2xl font-bold text-gray-900">My bookings</h1>
+      <h1 className="mt-4 text-2xl font-bold text-slate-800">My bookings</h1>
       <ul className="mt-6 space-y-4">
         {(bookings ?? []).length === 0 ? (
           <li className="text-gray-500">No bookings yet.</li>

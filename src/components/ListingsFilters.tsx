@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import { CAR_TYPES } from '@/types/database';
+import { CAR_TYPES, CAR_TYPE_LABELS } from '@/types/database';
 
 const ZIMBABWE_CITIES = [
   'Harare', 'Bulawayo', 'Mutare', 'Gweru', 'Kwekwe', 'Kadoma', 'Masvingo',
@@ -80,7 +80,7 @@ export function ListingsFilters({ start = '', end = '', city = '', type = '' }: 
         >
           <option value="">Any</option>
           {CAR_TYPES.map((t) => (
-            <option key={t} value={t}>{t}</option>
+            <option key={t} value={t}>{CAR_TYPE_LABELS[t]}</option>
           ))}
         </select>
       </label>

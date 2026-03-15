@@ -33,7 +33,7 @@ export function AdminTicketForm({
 
   return (
     <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-      <h2 className="text-lg font-semibold text-gray-900">Update ticket</h2>
+      <h2 className="text-lg font-semibold text-slate-800">Update ticket</h2>
       <label className="block">
         <span className="text-sm font-medium text-gray-700">Status</span>
         <select

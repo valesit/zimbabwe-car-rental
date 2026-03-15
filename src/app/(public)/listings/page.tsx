@@ -29,8 +29,21 @@ export default async function ListingsPage({
 
   if (error) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-8">
-        <p className="text-red-600">Failed to load listings.</p>
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <h1 className="text-2xl font-bold text-slate-800">Browse cars</h1>
+        <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4">
+          <p className="font-medium text-red-800">Failed to load listings.</p>
+          <p className="mt-1 text-sm text-red-700">
+            {error.message}
+          </p>
+          <p className="mt-3 text-sm text-red-600">
+            Check that your Supabase project has the tables created (run the migrations in{" "}
+            <code className="rounded bg-red-100 px-1 py-0.5">supabase/migrations</code>
+            ) and that <code className="rounded bg-red-100 px-1 py-0.5">.env.local</code> has the correct{" "}
+            <code className="rounded bg-red-100 px-1 py-0.5">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
+            <code className="rounded bg-red-100 px-1 py-0.5">NEXT_PUBLIC_SUPABASE_ANON_KEY</code>.
+          </p>
+        </div>
       </div>
     );
   }
@@ -60,7 +73,7 @@ export default async function ListingsPage({
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="text-2xl font-bold text-gray-900">Browse cars</h1>
+      <h1 className="text-2xl font-bold text-slate-800">Browse cars</h1>
       <ListingsFilters
         start={start}
         end={end}

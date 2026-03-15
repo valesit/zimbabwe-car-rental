@@ -23,10 +23,10 @@ export default async function SupportTicketPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <Link href="/support" className="text-sm text-gray-600 hover:text-gray-900">
+      <Link href="/support" className="text-sm text-gray-600 hover:text-slate-800">
         &larr; Support
       </Link>
-      <h1 className="mt-4 text-2xl font-bold text-gray-900">{ticket.subject}</h1>
+      <h1 className="mt-4 text-2xl font-bold text-slate-800">{ticket.subject}</h1>
       <p className="mt-2 text-sm text-gray-500">
         Status: {ticket.status} · Created {new Date(ticket.created_at).toLocaleString()}
       </p>

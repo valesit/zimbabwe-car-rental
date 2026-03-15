@@ -24,10 +24,10 @@ export default async function AdminSupportTicketPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <Link href="/admin/support" className="text-sm text-gray-600 hover:text-gray-900">
+      <Link href="/admin/support" className="text-sm text-gray-600 hover:text-slate-800">
         &larr; Support
       </Link>
-      <h1 className="mt-4 text-2xl font-bold text-gray-900">{ticket.subject}</h1>
+      <h1 className="mt-4 text-2xl font-bold text-slate-800">{ticket.subject}</h1>
       <p className="mt-2 text-sm text-gray-500">
         From: {(user as { display_name: string | null })?.display_name ?? '—'} ·{' '}
         {new Date(ticket.created_at).toLocaleString()}

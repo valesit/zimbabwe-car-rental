@@ -22,10 +22,10 @@ export default async function AdminEditCarPage({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <Link href="/admin/cars" className="text-sm text-gray-600 hover:text-gray-900">
+      <Link href="/admin/cars" className="text-sm text-gray-600 hover:text-slate-800">
         &larr; Cars
       </Link>
-      <h1 className="mt-4 text-2xl font-bold text-gray-900">Edit car (admin)</h1>
+      <h1 className="mt-4 text-2xl font-bold text-slate-800">Edit car (admin)</h1>
       <CarForm car={car} cities={cities ?? []} />
     </div>
   );

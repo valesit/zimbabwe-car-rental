@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { CAR_TYPES } from '@/types/database';
+import { CAR_TYPES, CAR_TYPE_LABELS } from '@/types/database';
 
 interface CarFormProps {
   car?: {
@@ -125,9 +125,9 @@ export function CarForm({ car, cities }: CarFormProps) {
             className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
           >
             <option value="">Select</option>
-            {CAR_TYPES.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
+{CAR_TYPES.map((t) => (
+            <option key={t} value={t}>{CAR_TYPE_LABELS[t]}</option>
+          ))}
           </select>
         </label>
       </div>

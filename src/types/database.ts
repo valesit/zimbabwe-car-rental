@@ -84,3 +84,17 @@ export interface SupportTicket {
 }
 
 export const CAR_TYPES: CarType[] = ['sedan', 'suv', 'hatchback', 'pickup', 'van', 'other'];
+
+/** Display labels: sentence case, first letter capital (for UI only; DB still uses lowercase) */
+export const CAR_TYPE_LABELS: Record<CarType, string> = {
+  sedan: 'Sedan',
+  suv: 'SUV',
+  hatchback: 'Hatchback',
+  pickup: 'Pickup',
+  van: 'Van',
+  other: 'Other',
+};
+
+export function getCarTypeLabel(type: CarType | string): string {
+  return CAR_TYPE_LABELS[type as CarType] ?? type;
+}

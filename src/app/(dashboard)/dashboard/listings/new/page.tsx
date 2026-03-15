@@ -7,7 +7,7 @@ export default async function NewListingPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-900">Add a car</h1>
+      <h1 className="text-2xl font-bold text-slate-800">Add a car</h1>
       <CarForm cities={cities ?? []} />
     </div>
   );

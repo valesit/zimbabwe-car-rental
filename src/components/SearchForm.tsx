@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import { CAR_TYPES } from '@/types/database';
+import { CAR_TYPES, CAR_TYPE_LABELS } from '@/types/database';
 
 const ZIMBABWE_CITIES = [
   'Harare', 'Bulawayo', 'Mutare', 'Gweru', 'Kwekwe', 'Kadoma', 'Masvingo',
@@ -32,32 +32,32 @@ export function SearchForm({ cities }: { cities?: { name: string }[] }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-wrap items-end gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+      className="flex flex-wrap items-end gap-4 rounded-2xl border border-gray-200/80 bg-white p-6 shadow-lg ring-1 ring-gray-900/5"
     >
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-gray-700">Start date</span>
+      <label className="flex flex-col gap-1.5">
+        <span className="text-sm font-semibold text-gray-700">Start date</span>
         <input
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm shadow-sm transition focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
         />
       </label>
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-gray-700">End date</span>
+      <label className="flex flex-col gap-1.5">
+        <span className="text-sm font-semibold text-gray-700">End date</span>
         <input
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm shadow-sm transition focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
         />
       </label>
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-gray-700">City</span>
+      <label className="flex flex-col gap-1.5">
+        <span className="text-sm font-semibold text-gray-700">City</span>
         <select
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm min-w-[140px]"
+          className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm min-w-[140px] shadow-sm transition focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
         >
           <option value="">Any</option>
           {cityOptions.map((c) => (
@@ -67,22 +67,22 @@ export function SearchForm({ cities }: { cities?: { name: string }[] }) {
           ))}
         </select>
       </label>
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-gray-700">Car type</span>
+      <label className="flex flex-col gap-1.5">
+        <span className="text-sm font-semibold text-gray-700">Car type</span>
         <select
           value={carType}
           onChange={(e) => setCarType(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm min-w-[120px]"
+          className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm min-w-[120px] shadow-sm transition focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
         >
           <option value="">Any</option>
           {CAR_TYPES.map((t) => (
-            <option key={t} value={t}>{t}</option>
+            <option key={t} value={t}>{CAR_TYPE_LABELS[t]}</option>
           ))}
         </select>
       </label>
       <button
         type="submit"
-        className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+        className="rounded-lg bg-teal-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
       >
         Search
       </button>

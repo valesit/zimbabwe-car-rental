@@ -10,7 +10,7 @@ export default async function AdminUsersPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="text-2xl font-bold text-gray-900">Users</h1>
+      <h1 className="text-2xl font-bold text-slate-800">Users</h1>
       <div className="mt-6 overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead>
@@ -26,7 +26,7 @@ export default async function AdminUsersPage() {
           <tbody className="divide-y divide-gray-200">
             {(profiles ?? []).map((p) => (
               <tr key={p.id}>
-                <td className="px-4 py-3 font-medium text-gray-900">{p.display_name ?? '—'}</td>
+                <td className="px-4 py-3 font-medium text-slate-800">{p.display_name ?? '—'}</td>
                 <td className="px-4 py-3 text-sm text-gray-600">{p.role}</td>
                 <td className="px-4 py-3 text-sm text-gray-600">{p.city ?? '—'}</td>
                 <td className="px-4 py-3 text-sm">{p.is_verified ? 'Yes' : 'No'}</td>

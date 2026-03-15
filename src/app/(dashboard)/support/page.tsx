@@ -15,12 +15,12 @@ export default async function SupportPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <Link href="/dashboard" className="text-sm text-gray-600 hover:text-gray-900">
+      <Link href="/dashboard" className="text-sm text-gray-600 hover:text-slate-800">
         &larr; Dashboard
       </Link>
-      <h1 className="mt-4 text-2xl font-bold text-gray-900">Support</h1>
+      <h1 className="mt-4 text-2xl font-bold text-slate-800">Support</h1>
       <NewTicketForm />
-      <h2 className="mt-8 text-lg font-semibold text-gray-900">My tickets</h2>
+      <h2 className="mt-8 text-lg font-semibold text-slate-800">My tickets</h2>
       <ul className="mt-4 space-y-3">
         {(tickets ?? []).length === 0 ? (
           <li className="text-gray-500">No support tickets yet.</li>
