@@ -1,0 +1,81 @@
+import { createClient } from '@/lib/supabase/server';
+import { CarCard } from '@/components/CarCard';
+import { ListingsFilters } from '@/components/ListingsFilters';
+
+export const revalidate = 60;
+
+export default async function ListingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ start?: string; end?: string; city?: string; type?: string }>;
+}) {
+  const supabase = await createClient();
+  const params = await searchParams;
+  const start = params.start;
+  const end = params.end;
+  const city = params.city;
+  const carType = params.type;
+
+  let query = supabase
+    .from('cars')
+    .select('id, make, model, year, car_type, location_city, daily_rate_zwl, image_urls, description, owner_id')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false });
+
+  if (city) query = query.eq('location_city', city);
+  if (carType) query = query.eq('car_type', carType);
+
+  const { data: cars, error } = await query;
+
+  if (error) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        <p className="text-red-600">Failed to load listings.</p>
+      </div>
+    );
+  }
+
+  let carIds = (cars ?? []).map((c) => c.id);
+  if (start && end && carIds.length > 0) {
+    const startDate = new Date(start);
+    const endDate = new Date(end);
+    const days: string[] = [];
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      days.push(d.toISOString().slice(0, 10));
+    }
+    const { data: availability } = await supabase
+      .from('car_availability')
+      .select('car_id')
+      .in('car_id', carIds)
+      .in('available_date', days)
+      .eq('is_available', true);
+    const availableCountByCar: Record<string, number> = {};
+    availability?.forEach((a) => {
+      availableCountByCar[a.car_id] = (availableCountByCar[a.car_id] ?? 0) + 1;
+    });
+    carIds = carIds.filter((id) => availableCountByCar[id] === days.length);
+  }
+
+  const filteredCars = (cars ?? []).filter((c) => carIds.includes(c.id));
+
+  return (
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <h1 className="text-2xl font-bold text-gray-900">Browse cars</h1>
+      <ListingsFilters
+        start={start}
+        end={end}
+        city={city}
+        type={carType}
+      />
+      <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {filteredCars.length === 0 ? (
+          <p className="col-span-full text-gray-500">No cars match your filters.</p>
+        ) : (
+          filteredCars.map((car) => (
+            <CarCard key={car.id} car={car} />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
