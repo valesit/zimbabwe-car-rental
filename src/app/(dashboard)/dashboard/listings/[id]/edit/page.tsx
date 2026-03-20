@@ -31,7 +31,7 @@ export default async function EditListingPage({
         &larr; Dashboard
       </Link>
       <h1 className="mt-4 text-2xl font-bold text-slate-800">Edit {car.make} {car.model}</h1>
-      <CarForm car={car} cities={cities ?? []} />
+      <CarForm car={car} cities={cities ?? []} imageStorageOwnerId={car.owner_id} />
       <div className="mt-12">
         <h2 className="text-lg font-semibold text-slate-800">Availability</h2>
         <p className="mt-1 text-sm text-gray-500">Block or open dates for this car.</p>

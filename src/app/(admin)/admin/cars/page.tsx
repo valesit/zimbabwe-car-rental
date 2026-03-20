@@ -14,27 +14,29 @@ export default async function AdminCarsPage() {
     .order('created_at', { ascending: false });
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="text-2xl font-bold text-slate-800">Cars</h1>
-      <div className="mt-6 overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead>
+    <div className="mx-auto max-w-6xl">
+      <h1 className="font-brand text-3xl font-semibold tracking-tight text-slate-900">Cars</h1>
+      <p className="mt-1 text-slate-600">All listings — edit, toggle visibility, or view on the site.</p>
+      <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-200/60">
+        <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-slate-100">
+          <thead className="bg-slate-50/80">
             <tr>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Listing</th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Owner</th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Location</th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Rate (USD)</th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Actions</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Listing</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Owner</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Location</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Rate (USD)</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Status</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-slate-100">
             {(cars ?? []).map((car) => {
               const owner = Array.isArray(car.profiles) ? car.profiles[0] : car.profiles;
               return (
-                <tr key={car.id}>
+                <tr key={car.id} className="transition hover:bg-teal-50/30">
                   <td className="px-4 py-3">
-                    <Link href={`/listings/${car.id}`} className="font-medium text-slate-800 hover:underline">
+                    <Link href={`/listings/${car.id}`} className="font-medium text-slate-800 hover:text-teal-700 hover:underline">
                       {car.make} {car.model} ({car.year})
                     </Link>
                   </td>
@@ -47,9 +49,9 @@ export default async function AdminCarsPage() {
                   </td>
                   <td className="px-4 py-3 text-sm">
                     {car.is_active ? (
-                      <span className="text-green-600">Active</span>
+                      <span className="inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">Active</span>
                     ) : (
-                      <span className="text-red-600">Removed</span>
+                      <span className="inline-flex rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-700">Removed</span>
                     )}
                   </td>
                   <td className="px-4 py-3">
@@ -66,6 +68,7 @@ export default async function AdminCarsPage() {
             })}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

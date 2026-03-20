@@ -24,7 +24,7 @@ export default async function ListingsPage({
           <p className="font-medium text-red-800">{message}</p>
           {detail && <p className="mt-1 text-sm text-red-700">{detail}</p>}
           <p className="mt-3 text-sm text-red-600">
-            Run all migrations in Supabase SQL Editor (001 through 007). If you see &quot;infinite recursion&quot;, run{" "}
+            Run all migrations in Supabase SQL Editor (001 through 008). If you see &quot;infinite recursion&quot;, run{" "}
             <code className="rounded bg-red-100 px-1 py-0.5">005_fix_rls_recursion.sql</code>.
           </p>
         </div>

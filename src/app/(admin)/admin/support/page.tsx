@@ -12,24 +12,26 @@ export default async function AdminSupportPage() {
     .order('created_at', { ascending: false });
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="text-2xl font-bold text-slate-800">Support tickets</h1>
-      <div className="mt-6 overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead>
+    <div className="mx-auto max-w-6xl">
+      <h1 className="font-brand text-3xl font-semibold tracking-tight text-slate-900">Support tickets</h1>
+      <p className="mt-1 text-slate-600">Customer requests and follow-up.</p>
+      <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-200/60">
+        <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-slate-100">
+          <thead className="bg-slate-50/80">
             <tr>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Subject</th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">User</th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Created</th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Actions</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Subject</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">User</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Status</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Created</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-slate-100">
             {(tickets ?? []).map((t) => {
               const user = Array.isArray(t.user) ? t.user[0] : t.user;
               return (
-                <tr key={t.id}>
+                <tr key={t.id} className="transition hover:bg-teal-50/30">
                   <td className="px-4 py-3 font-medium text-slate-800">{t.subject}</td>
                   <td className="px-4 py-3 text-sm text-gray-600">
                     {(user as { display_name: string | null })?.display_name ?? '—'}
@@ -51,6 +53,7 @@ export default async function AdminSupportPage() {
             })}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );

@@ -21,12 +21,13 @@ export default async function AdminEditCarPage({
   const { data: cities } = await supabase.from('cities').select('name').order('name');
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8">
-      <Link href="/admin/cars" className="text-sm text-gray-600 hover:text-slate-800">
-        &larr; Cars
+    <div className="mx-auto max-w-2xl">
+      <Link href="/admin/cars" className="text-sm font-medium text-teal-700 hover:text-teal-900">
+        &larr; Back to cars
       </Link>
-      <h1 className="mt-4 text-2xl font-bold text-slate-800">Edit car (admin)</h1>
-      <CarForm car={car} cities={cities ?? []} />
+      <h1 className="mt-4 font-brand text-3xl font-semibold tracking-tight text-slate-900">Edit listing</h1>
+      <p className="mt-1 text-slate-600">Admin — changes apply to the owner&apos;s car.</p>
+      <CarForm car={car} cities={cities ?? []} imageStorageOwnerId={car.owner_id} />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { CAR_TYPES, CAR_TYPE_LABELS } from '@/types/database';
+import { CarImageUploader } from '@/components/CarImageUploader';
 
 interface CarFormProps {
   car?: {
@@ -19,9 +20,11 @@ interface CarFormProps {
     image_urls: string[];
   };
   cities: { name: string }[];
+  /** Used as the first path segment in Storage (owner id for RLS). */
+  imageStorageOwnerId: string;
 }
 
-export function CarForm({ car, cities }: CarFormProps) {
+export function CarForm({ car, cities, imageStorageOwnerId }: CarFormProps) {
   const router = useRouter();
   const [make, setMake] = useState(car?.make ?? '');
   const [model, setModel] = useState(car?.model ?? '');
@@ -31,7 +34,10 @@ export function CarForm({ car, cities }: CarFormProps) {
   const [locationDetail, setLocationDetail] = useState(car?.location_detail ?? '');
   const [dailyRate, setDailyRate] = useState(car?.daily_rate_usd?.toString() ?? '');
   const [description, setDescription] = useState(car?.description ?? '');
-  const [imageUrls, setImageUrls] = useState(car?.image_urls?.join('\n') ?? '');
+  const [imageList, setImageList] = useState<string[]>(() =>
+    (car?.image_urls ?? []).filter((u) => typeof u === 'string' && u.trim()),
+  );
+  const [urlExtras, setUrlExtras] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -45,7 +51,14 @@ export function CarForm({ car, cities }: CarFormProps) {
       router.push('/login');
       return;
     }
-    const urls = imageUrls.trim() ? imageUrls.trim().split('\n').map((u) => u.trim()).filter(Boolean) : [];
+    const fromTextarea = urlExtras
+      .trim()
+      .split('\n')
+      .map((u) => u.trim())
+      .filter(Boolean);
+    const merged = [...imageList, ...fromTextarea];
+    const image_urls = Array.from(new Set(merged));
+
     const payload = {
       make,
       model,
@@ -55,7 +68,7 @@ export function CarForm({ car, cities }: CarFormProps) {
       location_detail: locationDetail || null,
       daily_rate_usd: parseFloat(dailyRate) || 0,
       description: description || null,
-      image_urls: urls,
+      image_urls,
       is_active: true,
     };
     if (car) {
@@ -125,9 +138,11 @@ export function CarForm({ car, cities }: CarFormProps) {
             className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
           >
             <option value="">Select</option>
-{CAR_TYPES.map((t) => (
-            <option key={t} value={t}>{CAR_TYPE_LABELS[t]}</option>
-          ))}
+            {CAR_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {CAR_TYPE_LABELS[t]}
+              </option>
+            ))}
           </select>
         </label>
       </div>
@@ -141,7 +156,9 @@ export function CarForm({ car, cities }: CarFormProps) {
         >
           <option value="">Select</option>
           {cities.map((c) => (
-            <option key={c.name} value={c.name}>{c.name}</option>
+            <option key={c.name} value={c.name}>
+              {c.name}
+            </option>
           ))}
         </select>
       </label>
@@ -175,16 +192,25 @@ export function CarForm({ car, cities }: CarFormProps) {
           className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
         />
       </label>
+
+      <div className="rounded-xl border border-gray-200 bg-gray-50/80 p-4">
+        <CarImageUploader
+          ownerIdForStoragePath={imageStorageOwnerId}
+          imageUrls={imageList}
+          onChange={setImageList}
+        />
+      </div>
       <label className="block">
-        <span className="text-sm font-medium text-gray-700">Image URLs (one per line, optional)</span>
+        <span className="text-sm font-medium text-gray-700">Extra image URLs (one per line, optional)</span>
         <textarea
-          value={imageUrls}
-          onChange={(e) => setImageUrls(e.target.value)}
-          rows={3}
-          placeholder="https://..."
+          value={urlExtras}
+          onChange={(e) => setUrlExtras(e.target.value)}
+          rows={2}
+          placeholder="https://…"
           className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
         />
       </label>
+
       {error && <p className="text-sm text-red-600">{error}</p>}
       <button
         type="submit"

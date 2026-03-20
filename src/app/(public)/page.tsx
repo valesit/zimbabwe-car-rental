@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import { SearchForm } from '@/components/SearchForm';
+import { HomePromoBanner } from '@/components/HomePromoBanner';
 
 const HERO_IMAGES = [
   'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600',
@@ -15,6 +16,7 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-[calc(100vh-4rem)]">
+      <HomePromoBanner />
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-teal-50 via-white to-slate-50 px-4 pt-16 pb-20 sm:px-6 lg:px-8">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%230d9488\' fill-opacity=\'0.04\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-60" aria-hidden="true" />

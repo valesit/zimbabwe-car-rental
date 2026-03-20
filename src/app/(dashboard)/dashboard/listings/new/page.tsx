@@ -1,14 +1,20 @@
+import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { CarForm } from '@/components/CarForm';
 
 export default async function NewListingPage() {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
   const { data: cities } = await supabase.from('cities').select('name').order('name');
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
       <h1 className="text-2xl font-bold text-slate-800">Add a car</h1>
-      <CarForm cities={cities ?? []} />
+      <CarForm cities={cities ?? []} imageStorageOwnerId={user.id} />
     </div>
   );
 }

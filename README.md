@@ -6,7 +6,8 @@ A Turo-style car rental platform focused on **Harare** (more cities later): list
 
 - **Public:** Browse cars with filters (dates, city, car type). View listing details and availability.
 - **Users:** Sign up, list cars, set availability, request bookings, leave reviews after completed trips, open support tickets.
-- **Admin:** Manage all cars (add/edit/remove), mark users as Verified or Premium, handle support tickets.
+- **Admin:** Dashboard analytics, manage cars (add/edit/remove), users (verified/premium), support tickets, **promo banner** for the home page.
+- **Storage:** Upload car photos (owners & admins) to Supabase Storage; optional image URLs still supported. Promo images use a separate public bucket.
 
 **Admin URL:** `/admin` — e.g. [http://localhost:3000/admin](http://localhost:3000/admin) locally, or `https://your-domain.com/admin` in production (you must be logged in as a user whose `profiles.role` is `admin`).
 
@@ -23,6 +24,10 @@ A Turo-style car rental platform focused on **Harare** (more cities later): list
    - `supabase/migrations/005_fix_rls_recursion.sql`
    - `supabase/migrations/006_harare_only_cities.sql` (removes other cities if you ran an older `004` that listed many cities)
    - `supabase/migrations/007_rename_amount_columns_usd.sql` (renames `*_zwl` → `*_usd` on existing DBs only)
+   - `supabase/migrations/008_storage_and_site_promo.sql` (**Storage** buckets `car-images` + `promo-banners`, RLS, and **`site_promo`** table for the home banner)
+
+   **Or one file:** paste [`supabase/manual/COMPLETE_SETUP.sql`](supabase/manual/COMPLETE_SETUP.sql) (same migrations in order, plus Harare fleet + default admin UUID — create that user in Authentication first, or edit/skip the tenant block per the file header).
+
 3. Copy the project URL, **anon** key, and **service_role** key from Settings → API.
 
 ### 2. App
