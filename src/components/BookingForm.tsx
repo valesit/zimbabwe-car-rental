@@ -5,19 +5,17 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { formatDailyRateUsd } from '@/lib/money';
-
-interface AvailabilityRow {
-  available_date: string;
-  is_available: boolean;
-}
+import { AvailabilityCalendar, type AvailabilityRow } from '@/components/AvailabilityCalendar';
 
 interface BookingFormProps {
   carId: string;
   dailyRate: number;
   availability: AvailabilityRow[];
+  /** First day on or after today with `is_available: true`; computed server-side */
+  nextAvailableDate: string | null;
 }
 
-export function BookingForm({ carId, dailyRate, availability }: BookingFormProps) {
+export function BookingForm({ carId, dailyRate, availability, nextAvailableDate }: BookingFormProps) {
   const router = useRouter();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -56,7 +54,10 @@ export function BookingForm({ carId, dailyRate, availability }: BookingFormProps
       return;
     }
     if (!isRangeAvailable(startDate, endDate)) {
-      setError('Selected dates are not fully available.');
+      const hint = nextAvailableDate
+        ? ` Next open day: ${formatFriendlyDate(nextAvailableDate)}.`
+        : '';
+      setError(`Selected dates are not fully available.${hint}`);
       return;
     }
     setLoading(true);
@@ -92,6 +93,32 @@ export function BookingForm({ carId, dailyRate, availability }: BookingFormProps
 
   return (
     <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+      {nextAvailableDate ? (
+        <p className="rounded-lg border border-teal-100 bg-teal-50 px-3 py-2 text-sm text-teal-900">
+          <span className="font-semibold">Next available:</span>{' '}
+          {formatFriendlyDate(nextAvailableDate)}
+        </p>
+      ) : (
+        <p className="rounded-lg border border-amber-100 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+          No upcoming open days are published for this car. Contact the owner or try again later.
+        </p>
+      )}
+
+      <div>
+        <p className="mb-2 text-sm font-medium text-gray-700">Availability</p>
+        <AvailabilityCalendar
+          availability={availability}
+          startDate={startDate}
+          endDate={endDate}
+          initialVisibleMonth={nextAvailableDate}
+          onRangeChange={(start, end) => {
+            setStartDate(start);
+            setEndDate(end);
+            setError(null);
+          }}
+        />
+      </div>
+
       <label className="block">
         <span className="text-sm font-medium text-gray-700">Start date</span>
         <input
@@ -130,4 +157,15 @@ export function BookingForm({ carId, dailyRate, availability }: BookingFormProps
       </p>
     </form>
   );
+}
+
+function formatFriendlyDate(iso: string) {
+  const [y, m, d] = iso.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  return dt.toLocaleDateString(undefined, {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
 }

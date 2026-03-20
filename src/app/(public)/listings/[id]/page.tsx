@@ -30,13 +30,19 @@ export default async function CarDetailPage({
 
   if (error || !car || !car.is_active) notFound();
 
+  const today = new Date().toISOString().slice(0, 10);
   const { data: availability } = await supabase
     .from('car_availability')
     .select('available_date, is_available')
     .eq('car_id', id)
-    .gte('available_date', new Date().toISOString().slice(0, 10))
+    .gte('available_date', today)
     .order('available_date', { ascending: true })
-    .limit(90);
+    .limit(400);
+
+  const nextAvailableDate =
+    (availability ?? [])
+      .filter((a) => a.is_available && a.available_date >= today)
+      .sort((a, b) => a.available_date.localeCompare(b.available_date))[0]?.available_date ?? null;
 
   const { data: bookingIds } = await supabase
     .from('bookings')
@@ -107,6 +113,7 @@ export default async function CarDetailPage({
               carId={car.id}
               dailyRate={Number(car.daily_rate_usd)}
               availability={availability ?? []}
+              nextAvailableDate={nextAvailableDate}
             />
           </div>
         </div>

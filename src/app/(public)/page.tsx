@@ -3,6 +3,9 @@ import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import { SearchForm } from '@/components/SearchForm';
 import { HomePromoBanner } from '@/components/HomePromoBanner';
+import { CarCard } from '@/components/CarCard';
+
+export const revalidate = 60;
 
 const HERO_IMAGES = [
   'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600',
@@ -13,6 +16,13 @@ const HERO_IMAGES = [
 export default async function HomePage() {
   const supabase = await createClient();
   const { data: cities } = await supabase.from('cities').select('name').order('name');
+
+  const { data: featuredCars } = await supabase
+    .from('cars')
+    .select('id, make, model, year, car_type, location_city, daily_rate_usd, image_urls, description')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+    .limit(6);
 
   return (
     <div className="min-h-[calc(100vh-4rem)]">
@@ -48,6 +58,35 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* Featured listings — book in one tap */}
+      {featuredCars && featuredCars.length > 0 ? (
+        <section className="border-t border-gray-200/80 bg-white px-4 py-14 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h2 className="font-brand text-2xl font-medium text-slate-800 sm:text-3xl">
+                  Cars you can book now
+                </h2>
+                <p className="mt-2 max-w-xl text-gray-600">
+                  Tap a car to see photos and lock in your dates — no need to open the full catalog first.
+                </p>
+              </div>
+              <Link
+                href="/listings"
+                className="shrink-0 text-sm font-semibold text-teal-700 underline-offset-4 hover:text-teal-800 hover:underline"
+              >
+                Browse all listings →
+              </Link>
+            </div>
+            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {featuredCars.map((car) => (
+                <CarCard key={car.id} car={car} />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {/* Features / Why use us - with images */}
       <section className="border-t border-gray-200/80 bg-white px-4 py-16 sm:px-6 lg:px-8">
