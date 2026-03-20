@@ -7,6 +7,11 @@ import { CarReviews } from '@/components/CarReviews';
 import { getCarTypeLabel } from '@/types/database';
 import { formatDailyRateUsd } from '@/lib/money';
 import { carListingImageUrl } from '@/lib/carImages';
+import {
+  buildBlockedSet,
+  computeNextOpenDay,
+  horizonEndIso,
+} from '@/lib/availability';
 
 export const revalidate = 60;
 
@@ -31,18 +36,17 @@ export default async function CarDetailPage({
   if (error || !car || !car.is_active) notFound();
 
   const today = new Date().toISOString().slice(0, 10);
+  const horizonEnd = horizonEndIso(today);
   const { data: availability } = await supabase
     .from('car_availability')
     .select('available_date, is_available')
     .eq('car_id', id)
     .gte('available_date', today)
-    .order('available_date', { ascending: true })
-    .limit(400);
+    .lte('available_date', horizonEnd)
+    .order('available_date', { ascending: true });
 
-  const nextAvailableDate =
-    (availability ?? [])
-      .filter((a) => a.is_available && a.available_date >= today)
-      .sort((a, b) => a.available_date.localeCompare(b.available_date))[0]?.available_date ?? null;
+  const blocked = buildBlockedSet(availability ?? []);
+  const nextAvailableDate = computeNextOpenDay(today, horizonEnd, blocked);
 
   const { data: bookingIds } = await supabase
     .from('bookings')
@@ -63,6 +67,11 @@ export default async function CarDetailPage({
     : { data: [] };
 
   const owner = Array.isArray(car.profiles) ? car.profiles[0] : car.profiles;
+  const ownerRow = owner as {
+    display_name: string | null;
+    is_verified: boolean;
+    is_premium: boolean;
+  } | null;
   const heroImage = carListingImageUrl({
     image_urls: car.image_urls as string[],
     car_type: car.car_type,
@@ -70,12 +79,15 @@ export default async function CarDetailPage({
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <Link href="/listings" className="text-sm text-gray-600 hover:text-slate-800">
-        &larr; Back to listings
+      <Link
+        href="/listings"
+        className="inline-flex items-center gap-1 text-sm font-medium text-emerald-700 hover:text-emerald-900"
+      >
+        <span aria-hidden>←</span> Back to listings
       </Link>
-      <div className="mt-6 grid gap-8 lg:grid-cols-3">
+      <div className="mt-6 grid gap-10 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <div className="aspect-[4/3] relative overflow-hidden rounded-lg bg-gray-100">
+          <div className="aspect-[4/3] relative overflow-hidden rounded-2xl bg-gray-100 shadow-md ring-2 ring-emerald-100/80">
             <Image
               src={heroImage}
               alt={`${car.make} ${car.model}`}
@@ -85,28 +97,77 @@ export default async function CarDetailPage({
               sizes="(max-width: 1024px) 100vw, 66vw"
             />
           </div>
-          <h1 className="mt-4 text-2xl font-bold text-slate-800">
-            {car.make} {car.model} ({car.year})
+          <h1 className="mt-6 font-brand text-3xl font-medium tracking-tight text-slate-800 sm:text-4xl">
+            {car.make} {car.model}{' '}
+            <span className="text-emerald-600">({car.year})</span>
           </h1>
-          <p className="mt-2 text-gray-600">{getCarTypeLabel(car.car_type)}</p>
-          <p className="text-gray-600">{car.location_city}{car.location_detail ? ` · ${car.location_detail}` : ''}</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-900 ring-1 ring-emerald-100">
+              <svg className="h-4 w-4 shrink-0 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                />
+              </svg>
+              {getCarTypeLabel(car.car_type)}
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-3 py-1 text-sm font-medium text-slate-700 ring-1 ring-slate-200">
+              <svg className="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              {car.location_city}
+              {car.location_detail ? ` · ${car.location_detail}` : ''}
+            </span>
+          </div>
           {car.description && (
-            <p className="mt-4 text-gray-700">{car.description}</p>
+            <p className="mt-5 text-base leading-relaxed text-gray-700">{car.description}</p>
           )}
-          <div className="mt-8">
-            <h2 className="text-lg font-semibold text-slate-800">Reviews</h2>
+
+          {ownerRow && (
+            <div className="mt-8 rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50/60 to-white p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-800/80">Listed by</p>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <p className="text-lg font-semibold text-slate-800">
+                  {ownerRow.display_name ?? 'Owner'}
+                </p>
+                {ownerRow.is_verified && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-medium text-white">
+                    <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path
+                        fillRule="evenodd"
+                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    Verified
+                  </span>
+                )}
+              </div>
+              <p className="mt-2 text-sm text-gray-600">
+                Request a booking — the owner will confirm your trip. Questions? Use support after you sign in.
+              </p>
+            </div>
+          )}
+
+          <div className="mt-10 border-t border-gray-100 pt-8">
+            <h2 className="font-brand text-xl font-medium text-emerald-800 sm:text-2xl">Reviews</h2>
             <CarReviews reviews={reviews ?? []} />
           </div>
         </div>
         <div>
-          <div className="sticky top-4 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-            <p className="text-2xl font-bold text-slate-800">
+          <div className="sticky top-4 overflow-hidden rounded-2xl border border-emerald-100 bg-white p-6 shadow-lg shadow-emerald-900/5 ring-1 ring-emerald-50">
+            <p className="text-3xl font-bold tracking-tight text-emerald-700">
               {formatDailyRateUsd(Number(car.daily_rate_usd))}
-              <span className="text-base font-normal text-gray-500"> / day</span>
+              <span className="text-lg font-semibold text-emerald-600/80"> / day</span>
             </p>
-            {owner && (
-              <p className="mt-2 text-sm text-gray-600">
-                Owner: {(owner as { display_name: string | null }).display_name ?? 'User'}
+            <p className="mt-2 text-xs text-gray-500">Taxes and extras may apply at pickup.</p>
+            {ownerRow && (
+              <p className="mt-3 text-sm text-gray-600">
+                <span className="text-gray-500">Owner</span>{' '}
+                <span className="font-medium text-slate-800">{ownerRow.display_name ?? 'User'}</span>
               </p>
             )}
             <BookingForm
@@ -114,6 +175,7 @@ export default async function CarDetailPage({
               dailyRate={Number(car.daily_rate_usd)}
               availability={availability ?? []}
               nextAvailableDate={nextAvailableDate}
+              horizonEnd={horizonEnd}
             />
           </div>
         </div>

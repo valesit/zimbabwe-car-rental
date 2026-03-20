@@ -19,7 +19,9 @@ export default async function ListingsPage({
   function renderError(message: string, detail?: string) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <h1 className="text-2xl font-bold text-slate-800">Browse cars</h1>
+        <h1 className="font-brand text-2xl font-medium text-slate-800 sm:text-3xl">
+          Browse <span className="text-emerald-600">cars</span> in Harare
+        </h1>
         <div className="mt-6 rounded-lg border border-red-200 bg-red-50 p-4">
           <p className="font-medium text-red-800">{message}</p>
           {detail && <p className="mt-1 text-sm text-red-700">{detail}</p>}
@@ -58,24 +60,24 @@ export default async function ListingsPage({
       for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
         days.push(d.toISOString().slice(0, 10));
       }
-      const { data: availability } = await supabase
+      // Opt-out calendar: cars are available unless a row exists with is_available = false
+      const { data: blockedRows } = await supabase
         .from('car_availability')
         .select('car_id')
         .in('car_id', carIds)
         .in('available_date', days)
-        .eq('is_available', true);
-      const availableCountByCar: Record<string, number> = {};
-      availability?.forEach((a) => {
-        availableCountByCar[a.car_id] = (availableCountByCar[a.car_id] ?? 0) + 1;
-      });
-      carIds = carIds.filter((id) => availableCountByCar[id] === days.length);
+        .eq('is_available', false);
+      const blockedCarIds = new Set((blockedRows ?? []).map((r) => r.car_id));
+      carIds = carIds.filter((id) => !blockedCarIds.has(id));
     }
 
     const filteredCars = (cars ?? []).filter((c) => carIds.includes(c.id));
 
     return (
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <h1 className="text-2xl font-bold text-slate-800">Browse cars</h1>
+        <h1 className="font-brand text-2xl font-medium text-slate-800 sm:text-3xl">
+          Browse <span className="text-emerald-600">cars</span> in Harare
+        </h1>
         <ListingsFilters
           start={start}
           end={end}

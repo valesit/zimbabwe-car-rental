@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { SearchForm } from '@/components/SearchForm';
 import { HomePromoBanner } from '@/components/HomePromoBanner';
 import { CarCard } from '@/components/CarCard';
+import { hasOpenDayInHorizon, horizonEndIso } from '@/lib/availability';
 
 export const revalidate = 60;
 
@@ -17,12 +18,40 @@ export default async function HomePage() {
   const supabase = await createClient();
   const { data: cities } = await supabase.from('cities').select('name').order('name');
 
-  const { data: featuredCars } = await supabase
+  const today = new Date().toISOString().slice(0, 10);
+  const horizonEnd = horizonEndIso(today);
+
+  const { data: candidateCars } = await supabase
     .from('cars')
     .select('id, make, model, year, car_type, location_city, daily_rate_usd, image_urls, description')
     .eq('is_active', true)
     .order('created_at', { ascending: false })
-    .limit(6);
+    .limit(48);
+
+  const ids = (candidateCars ?? []).map((c) => c.id);
+
+  let featuredCars: NonNullable<typeof candidateCars> = [];
+  if (ids.length > 0) {
+    const { data: blockedRows } = await supabase
+      .from('car_availability')
+      .select('car_id, available_date')
+      .in('car_id', ids)
+      .gte('available_date', today)
+      .lte('available_date', horizonEnd)
+      .eq('is_available', false);
+
+    const blockedByCar = new Map<string, Set<string>>();
+    for (const row of blockedRows ?? []) {
+      if (!blockedByCar.has(row.car_id)) blockedByCar.set(row.car_id, new Set());
+      blockedByCar.get(row.car_id)!.add(row.available_date);
+    }
+
+    featuredCars = (candidateCars ?? [])
+      .filter((car) =>
+        hasOpenDayInHorizon(today, horizonEnd, blockedByCar.get(car.id) ?? new Set())
+      )
+      .slice(0, 6);
+  }
 
   return (
     <div className="min-h-[calc(100vh-4rem)]">
@@ -66,7 +95,7 @@ export default async function HomePage() {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <h2 className="font-brand text-2xl font-medium text-slate-800 sm:text-3xl">
-                  Cars you can book now
+                  <span className="text-emerald-600">Cars you can book</span> now
                 </h2>
                 <p className="mt-2 max-w-xl text-gray-600">
                   Tap a car to see photos and lock in your dates — no need to open the full catalog first.
@@ -92,7 +121,7 @@ export default async function HomePage() {
       <section className="border-t border-gray-200/80 bg-white px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
           <h2 className="font-brand text-center text-2xl font-medium text-slate-800 sm:text-3xl">
-            Why book with us
+            Why <span className="text-emerald-600">book with us</span>
           </h2>
           <div className="mt-12 grid gap-8 sm:grid-cols-3">
             <div className="overflow-hidden rounded-2xl border border-gray-100 bg-gray-50/50 shadow-sm transition hover:border-teal-100 hover:shadow-md">
@@ -153,7 +182,7 @@ export default async function HomePage() {
           <div className="mt-14 flex justify-center">
             <Link
               href="/listings"
-              className="inline-flex items-center gap-2 rounded-xl bg-teal-600 px-6 py-3.5 text-base font-semibold text-white shadow-sm transition hover:bg-teal-700"
+              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 text-base font-semibold text-white shadow-md shadow-emerald-600/25 transition hover:bg-emerald-700"
             >
               Browse all listings
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

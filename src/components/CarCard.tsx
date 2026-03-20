@@ -32,9 +32,11 @@ export function CarCard({ car }: CarCardProps) {
         </h2>
         <p className="mt-1 text-sm text-gray-500">{getCarTypeLabel(car.car_type)}</p>
         <p className="mt-1 text-sm text-gray-600">{car.location_city}</p>
-        <p className="mt-2 font-medium text-slate-800">
-          {formatDailyRateUsd(car.daily_rate_usd)} <span className="text-sm font-normal text-gray-500">/ day</span>
+        <p className="mt-2 font-semibold text-emerald-700">
+          {formatDailyRateUsd(car.daily_rate_usd)}{' '}
+          <span className="text-sm font-medium text-emerald-600/80">/ day</span>
         </p>
+        <p className="mt-2 text-sm font-medium text-emerald-600">View & book →</p>
       </div>
     </Link>
   );
