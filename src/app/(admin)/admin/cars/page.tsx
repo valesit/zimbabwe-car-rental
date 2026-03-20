@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { formatDailyRateUsd } from '@/lib/money';
 import { ToggleCarActiveButton } from '@/components/ToggleCarActiveButton';
 
 export default async function AdminCarsPage() {
@@ -7,7 +8,7 @@ export default async function AdminCarsPage() {
   const { data: cars } = await supabase
     .from('cars')
     .select(`
-      id, make, model, year, car_type, location_city, daily_rate_zwl, is_active, owner_id,
+      id, make, model, year, car_type, location_city, daily_rate_usd, is_active, owner_id,
       profiles:owner_id (display_name)
     `)
     .order('created_at', { ascending: false });
@@ -22,7 +23,7 @@ export default async function AdminCarsPage() {
               <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Listing</th>
               <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Owner</th>
               <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Location</th>
-              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Rate (ZWL)</th>
+              <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Rate (USD)</th>
               <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Status</th>
               <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Actions</th>
             </tr>
@@ -42,7 +43,7 @@ export default async function AdminCarsPage() {
                   </td>
                   <td className="px-4 py-3 text-sm text-gray-600">{car.location_city}</td>
                   <td className="px-4 py-3 text-sm text-gray-600">
-                    {Number(car.daily_rate_zwl).toLocaleString()}
+                    {formatDailyRateUsd(Number(car.daily_rate_usd))}
                   </td>
                   <td className="px-4 py-3 text-sm">
                     {car.is_active ? (

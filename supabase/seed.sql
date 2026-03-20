@@ -1,12 +1,14 @@
 -- Seed initial cars (run after migrations and after you have at least one user).
 -- Replace YOUR_ADMIN_USER_UUID with your Supabase auth user ID (from Auth > Users in dashboard).
 
--- Example: insert 3 sample cars (update the owner_id to your user UUID)
+-- Example: Harare fleet (amounts in USD; column daily_rate_usd)
 /*
-insert into public.cars (owner_id, make, model, year, car_type, location_city, daily_rate_zwl, description, is_active) values
-  ('YOUR_ADMIN_USER_UUID', 'Toyota', 'Hilux', 2022, 'pickup', 'Harare', 150000, 'Reliable double cab, ideal for trips.', true),
-  ('YOUR_ADMIN_USER_UUID', 'Honda', 'Fit', 2021, 'hatchback', 'Bulawayo', 75000, 'Economical hatchback for city use.', true),
-  ('YOUR_ADMIN_USER_UUID', 'Toyota', 'Land Cruiser', 2020, 'suv', 'Harare', 250000, 'Full-size SUV for family or off-road.', true);
+insert into public.cars (owner_id, make, model, year, car_type, location_city, daily_rate_usd, description, is_active) values
+  ('YOUR_ADMIN_USER_UUID', 'Nissan', 'March', 2022, 'hatchback', 'Harare', 35, 'Compact and economical.', true),
+  ('YOUR_ADMIN_USER_UUID', 'Toyota', 'Vitz', 2022, 'hatchback', 'Harare', 45, 'City-friendly hatchback.', true),
+  ('YOUR_ADMIN_USER_UUID', 'Toyota', 'Aqua', 2022, 'hatchback', 'Harare', 50, 'Hybrid hatchback.', true),
+  ('YOUR_ADMIN_USER_UUID', 'Toyota', 'Axio', 2022, 'sedan', 'Harare', 55, 'Comfortable sedan.', true),
+  ('YOUR_ADMIN_USER_UUID', 'Toyota', 'Hiace', 2021, 'van', 'Harare', 110, 'Spacious van for groups.', true);
 */
 
 -- To make your user an admin (run once after signup):

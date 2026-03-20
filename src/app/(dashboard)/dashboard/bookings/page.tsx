@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { formatDailyRateUsd } from '@/lib/money';
 
 export default async function BookingsPage() {
   const supabase = await createClient();
@@ -9,7 +10,7 @@ export default async function BookingsPage() {
   const { data: bookings } = await supabase
     .from('bookings')
     .select(`
-      id, start_date, end_date, status, total_amount_zwl, car_id,
+      id, start_date, end_date, status, total_amount_usd, car_id,
       cars (id, make, model, year, image_urls, location_city)
     `)
     .eq('renter_id', user.id)
@@ -39,7 +40,7 @@ export default async function BookingsPage() {
                     {b.start_date} – {b.end_date} · {b.status}
                   </p>
                   <p className="text-sm text-gray-600">
-                    ZWL {Number(b.total_amount_zwl).toLocaleString()}
+                    {formatDailyRateUsd(Number(b.total_amount_usd))}
                   </p>
                 </div>
                 <Link

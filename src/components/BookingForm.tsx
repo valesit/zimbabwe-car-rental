@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import { formatDailyRateUsd } from '@/lib/money';
 
 interface AvailabilityRow {
   available_date: string;
@@ -72,7 +73,7 @@ export function BookingForm({ carId, dailyRate, availability }: BookingFormProps
       start_date: startDate,
       end_date: endDate,
       status: 'pending',
-      total_amount_zwl: total,
+      total_amount_usd: total,
     });
     if (bookError) {
       setError(bookError.message);
@@ -113,7 +114,7 @@ export function BookingForm({ carId, dailyRate, availability }: BookingFormProps
       </label>
       {startDate && endDate && getDaysBetween(startDate, endDate) > 0 && (
         <p className="text-sm text-gray-600">
-          {getDaysBetween(startDate, endDate)} days · ZWL {(dailyRate * getDaysBetween(startDate, endDate)).toLocaleString()} total
+          {getDaysBetween(startDate, endDate)} days · {formatDailyRateUsd(dailyRate * getDaysBetween(startDate, endDate))} total
         </p>
       )}
       {error && <p className="text-sm text-red-600">{error}</p>}

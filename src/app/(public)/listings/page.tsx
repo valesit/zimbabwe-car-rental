@@ -24,7 +24,7 @@ export default async function ListingsPage({
           <p className="font-medium text-red-800">{message}</p>
           {detail && <p className="mt-1 text-sm text-red-700">{detail}</p>}
           <p className="mt-3 text-sm text-red-600">
-            Run all migrations in Supabase SQL Editor (001 through 005). If you see &quot;infinite recursion&quot;, run{" "}
+            Run all migrations in Supabase SQL Editor (001 through 007). If you see &quot;infinite recursion&quot;, run{" "}
             <code className="rounded bg-red-100 px-1 py-0.5">005_fix_rls_recursion.sql</code>.
           </p>
         </div>
@@ -33,9 +33,11 @@ export default async function ListingsPage({
   }
 
   try {
+    const { data: cities } = await supabase.from('cities').select('name').order('name');
+
     let query = supabase
       .from('cars')
-      .select('id, make, model, year, car_type, location_city, daily_rate_zwl, image_urls, description, owner_id')
+      .select('id, make, model, year, car_type, location_city, daily_rate_usd, image_urls, description, owner_id')
       .eq('is_active', true)
       .order('created_at', { ascending: false });
 
@@ -79,6 +81,7 @@ export default async function ListingsPage({
           end={end}
           city={city}
           type={carType}
+          cities={cities ?? undefined}
         />
         <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filteredCars.length === 0 ? (

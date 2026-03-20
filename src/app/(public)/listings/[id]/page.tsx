@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { BookingForm } from '@/components/BookingForm';
 import { CarReviews } from '@/components/CarReviews';
 import { getCarTypeLabel } from '@/types/database';
+import { formatDailyRateUsd } from '@/lib/money';
 
 export const revalidate = 60;
 
@@ -20,7 +21,7 @@ export default async function CarDetailPage({
     .from('cars')
     .select(`
       id, make, model, year, car_type, location_city, location_detail,
-      daily_rate_zwl, image_urls, description, is_active, owner_id,
+      daily_rate_usd, image_urls, description, is_active, owner_id,
       profiles:owner_id (display_name, is_verified, is_premium)
     `)
     .eq('id', id)
@@ -95,7 +96,7 @@ export default async function CarDetailPage({
         <div>
           <div className="sticky top-4 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
             <p className="text-2xl font-bold text-slate-800">
-              ZWL {Number(car.daily_rate_zwl).toLocaleString()}
+              {formatDailyRateUsd(Number(car.daily_rate_usd))}
               <span className="text-base font-normal text-gray-500"> / day</span>
             </p>
             {owner && (
@@ -105,7 +106,7 @@ export default async function CarDetailPage({
             )}
             <BookingForm
               carId={car.id}
-              dailyRate={Number(car.daily_rate_zwl)}
+              dailyRate={Number(car.daily_rate_usd)}
               availability={availability ?? []}
             />
           </div>

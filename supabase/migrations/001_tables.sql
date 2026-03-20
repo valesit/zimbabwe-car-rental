@@ -31,7 +31,7 @@ create table if not exists public.cars (
   car_type text not null check (car_type in ('sedan', 'suv', 'hatchback', 'pickup', 'van', 'other')),
   location_city text not null,
   location_detail text,
-  daily_rate_zwl decimal(12,2) not null check (daily_rate_zwl >= 0),
+  daily_rate_usd decimal(12,2) not null check (daily_rate_usd >= 0),
   image_urls text[] default '{}',
   description text,
   is_active boolean not null default true,
@@ -63,7 +63,7 @@ create table if not exists public.bookings (
   start_date date not null,
   end_date date not null check (end_date >= start_date),
   status text not null default 'pending' check (status in ('pending', 'confirmed', 'completed', 'cancelled')),
-  total_amount_zwl decimal(12,2) not null check (total_amount_zwl >= 0),
+  total_amount_usd decimal(12,2) not null check (total_amount_usd >= 0),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

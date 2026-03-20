@@ -20,10 +20,10 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%230d9488\' fill-opacity=\'0.04\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-60" aria-hidden="true" />
         <div className="relative mx-auto max-w-4xl text-center">
           <h1 className="font-brand text-4xl font-medium tracking-tight text-slate-800 sm:text-5xl lg:text-6xl">
-            Rent a car in <span className="text-teal-600">Zimbabwe</span>
+            Rent a car in <span className="text-teal-600">Harare</span>
           </h1>
           <p className="mt-5 text-lg text-gray-600 sm:text-xl max-w-2xl mx-auto">
-            Find and book cars from local owners. Choose by location, dates, and vehicle type.
+            Find and book cars from local owners. Harare today — more cities coming soon.
           </p>
           <div className="mx-auto mt-10 max-w-3xl">
             <SearchForm cities={cities ?? undefined} />
@@ -86,8 +86,8 @@ export default async function HomePage() {
                 <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-teal-100 text-teal-600">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 </div>
-                <h3 className="mt-3 font-semibold text-slate-800">Across Zimbabwe</h3>
-                <p className="mt-2 text-sm text-gray-600">Harare, Bulawayo, Mutare and more. Filter by city to find cars near you.</p>
+                <h3 className="mt-3 font-semibold text-slate-800">Harare-focused</h3>
+                <p className="mt-2 text-sm text-gray-600">We currently serve Harare only. More cities will be added as we grow.</p>
               </div>
             </div>
             <div className="overflow-hidden rounded-2xl border border-gray-100 bg-gray-50/50 shadow-sm transition hover:border-teal-100 hover:shadow-md">

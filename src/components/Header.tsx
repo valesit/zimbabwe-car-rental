@@ -14,7 +14,7 @@ export async function Header() {
     <header className="border-b border-gray-200/80 bg-white/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/80">
       <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="font-brand text-xl font-medium tracking-tight text-teal-600">
-          Skyrise Car Rental
+          Rental Car Connect
         </Link>
         <div className="flex items-center gap-6">
           <Link

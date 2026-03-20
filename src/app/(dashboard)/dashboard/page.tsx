@@ -9,8 +9,8 @@ export default async function DashboardPage() {
   const { data: bookings } = await supabase
     .from('bookings')
     .select(`
-      id, start_date, end_date, status, total_amount_zwl, car_id,
-      cars (id, make, model, year, image_urls, daily_rate_zwl, location_city, car_type)
+      id, start_date, end_date, status, total_amount_usd, car_id,
+      cars (id, make, model, year, image_urls, daily_rate_usd, location_city, car_type)
     `)
     .eq('renter_id', user.id)
     .order('created_at', { ascending: false })
@@ -18,7 +18,7 @@ export default async function DashboardPage() {
 
   const { data: myCars } = await supabase
     .from('cars')
-    .select('id, make, model, year, car_type, location_city, daily_rate_zwl, image_urls, description, owner_id, is_active')
+    .select('id, make, model, year, car_type, location_city, daily_rate_usd, image_urls, description, owner_id, is_active')
     .eq('owner_id', user.id)
     .order('created_at', { ascending: false });
 

@@ -4,10 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { CAR_TYPES, CAR_TYPE_LABELS } from '@/types/database';
 
-const ZIMBABWE_CITIES = [
-  'Harare', 'Bulawayo', 'Mutare', 'Gweru', 'Kwekwe', 'Kadoma', 'Masvingo',
-  'Chinhoyi', 'Marondera', 'Norton', 'Victoria Falls', 'Kariba', 'Beitbridge',
-];
+const DEFAULT_CITIES = [{ name: 'Harare' }];
 
 export function SearchForm({ cities }: { cities?: { name: string }[] }) {
   const router = useRouter();
@@ -17,7 +14,7 @@ export function SearchForm({ cities }: { cities?: { name: string }[] }) {
   const [city, setCity] = useState(searchParams.get('city') ?? '');
   const [carType, setCarType] = useState(searchParams.get('type') ?? '');
 
-  const cityOptions = cities?.length ? cities : ZIMBABWE_CITIES;
+  const cityOptions = cities?.length ? cities : DEFAULT_CITIES;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

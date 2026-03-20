@@ -30,7 +30,7 @@ export interface Car {
   car_type: CarType;
   location_city: string;
   location_detail: string | null;
-  daily_rate_zwl: number;
+  daily_rate_usd: number;
   image_urls: string[];
   description: string | null;
   is_active: boolean;
@@ -53,7 +53,7 @@ export interface Booking {
   start_date: string;
   end_date: string;
   status: BookingStatus;
-  total_amount_zwl: number;
+  total_amount_usd: number;
   created_at: string;
   updated_at: string;
   car?: Car;

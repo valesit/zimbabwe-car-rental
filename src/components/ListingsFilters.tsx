@@ -4,25 +4,24 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { CAR_TYPES, CAR_TYPE_LABELS } from '@/types/database';
 
-const ZIMBABWE_CITIES = [
-  'Harare', 'Bulawayo', 'Mutare', 'Gweru', 'Kwekwe', 'Kadoma', 'Masvingo',
-  'Chinhoyi', 'Marondera', 'Norton', 'Victoria Falls', 'Kariba', 'Beitbridge',
-];
+const DEFAULT_CITY_NAMES = ['Harare'];
 
 interface ListingsFiltersProps {
   start?: string;
   end?: string;
   city?: string;
   type?: string;
+  cities?: { name: string }[];
 }
 
-export function ListingsFilters({ start = '', end = '', city = '', type = '' }: ListingsFiltersProps) {
+export function ListingsFilters({ start = '', end = '', city = '', type = '', cities }: ListingsFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [startDate, setStartDate] = useState(start);
   const [endDate, setEndDate] = useState(end);
   const [cityVal, setCityVal] = useState(city);
   const [carType, setCarType] = useState(type);
+  const cityNames = cities?.length ? cities.map((c) => c.name) : DEFAULT_CITY_NAMES;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -66,7 +65,7 @@ export function ListingsFilters({ start = '', end = '', city = '', type = '' }: 
           className="rounded-md border border-gray-300 px-3 py-2 text-sm min-w-[140px]"
         >
           <option value="">Any</option>
-          {ZIMBABWE_CITIES.map((c) => (
+          {cityNames.map((c) => (
             <option key={c} value={c}>{c}</option>
           ))}
         </select>

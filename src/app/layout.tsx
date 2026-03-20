@@ -10,8 +10,8 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Skyrise Car Rental",
-  description: "Rent a car in Zimbabwe from local owners. Browse by location, dates, and type.",
+  title: "Rental Car Connect",
+  description: "Rent a car in Harare. Browse by dates and vehicle type.",
 };
 
 export default function RootLayout({

@@ -14,7 +14,7 @@ interface CarFormProps {
     car_type: string;
     location_city: string;
     location_detail: string | null;
-    daily_rate_zwl: number;
+    daily_rate_usd: number;
     description: string | null;
     image_urls: string[];
   };
@@ -29,7 +29,7 @@ export function CarForm({ car, cities }: CarFormProps) {
   const [carType, setCarType] = useState(car?.car_type ?? '');
   const [locationCity, setLocationCity] = useState(car?.location_city ?? '');
   const [locationDetail, setLocationDetail] = useState(car?.location_detail ?? '');
-  const [dailyRate, setDailyRate] = useState(car?.daily_rate_zwl?.toString() ?? '');
+  const [dailyRate, setDailyRate] = useState(car?.daily_rate_usd?.toString() ?? '');
   const [description, setDescription] = useState(car?.description ?? '');
   const [imageUrls, setImageUrls] = useState(car?.image_urls?.join('\n') ?? '');
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +53,7 @@ export function CarForm({ car, cities }: CarFormProps) {
       car_type: carType as 'sedan' | 'suv' | 'hatchback' | 'pickup' | 'van' | 'other',
       location_city: locationCity,
       location_detail: locationDetail || null,
-      daily_rate_zwl: parseFloat(dailyRate) || 0,
+      daily_rate_usd: parseFloat(dailyRate) || 0,
       description: description || null,
       image_urls: urls,
       is_active: true,
@@ -155,7 +155,7 @@ export function CarForm({ car, cities }: CarFormProps) {
         />
       </label>
       <label className="block">
-        <span className="text-sm font-medium text-gray-700">Daily rate (ZWL)</span>
+        <span className="text-sm font-medium text-gray-700">Daily rate (USD)</span>
         <input
           type="number"
           value={dailyRate}

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { formatDailyRateUsd } from '@/lib/money';
 import { LeaveReviewForm } from '@/components/LeaveReviewForm';
 
 export default async function BookingDetailPage({
@@ -16,7 +17,7 @@ export default async function BookingDetailPage({
   const { data: booking, error } = await supabase
     .from('bookings')
     .select(`
-      id, start_date, end_date, status, total_amount_zwl, car_id, renter_id,
+      id, start_date, end_date, status, total_amount_usd, car_id, renter_id,
       cars (id, make, model, year, location_city, owner_id)
     `)
     .eq('id', id)
@@ -49,7 +50,7 @@ export default async function BookingDetailPage({
           {booking.start_date} – {booking.end_date}
         </p>
         <p className="text-gray-700">Status: {booking.status}</p>
-        <p className="mt-2 font-medium">ZWL {Number(booking.total_amount_zwl).toLocaleString()}</p>
+        <p className="mt-2 font-medium">{formatDailyRateUsd(Number(booking.total_amount_usd))}</p>
         <Link href={`/listings/${car.id}`} className="mt-4 inline-block text-sm text-slate-800 underline">
           View listing
         </Link>

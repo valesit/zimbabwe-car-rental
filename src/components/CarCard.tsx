@@ -2,9 +2,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import type { Car } from '@/types/database';
 import { getCarTypeLabel } from '@/types/database';
+import { formatDailyRateUsd } from '@/lib/money';
 
 interface CarCardProps {
-  car: Pick<Car, 'id' | 'make' | 'model' | 'year' | 'car_type' | 'location_city' | 'daily_rate_zwl' | 'image_urls' | 'description'>;
+  car: Pick<Car, 'id' | 'make' | 'model' | 'year' | 'car_type' | 'location_city' | 'daily_rate_usd' | 'image_urls' | 'description'>;
 }
 
 export function CarCard({ car }: CarCardProps) {
@@ -37,7 +38,7 @@ export function CarCard({ car }: CarCardProps) {
         <p className="mt-1 text-sm text-gray-500">{getCarTypeLabel(car.car_type)}</p>
         <p className="mt-1 text-sm text-gray-600">{car.location_city}</p>
         <p className="mt-2 font-medium text-slate-800">
-          ZWL {Number(car.daily_rate_zwl).toLocaleString()} <span className="text-sm font-normal text-gray-500">/ day</span>
+          {formatDailyRateUsd(car.daily_rate_usd)} <span className="text-sm font-normal text-gray-500">/ day</span>
         </p>
       </div>
     </Link>
