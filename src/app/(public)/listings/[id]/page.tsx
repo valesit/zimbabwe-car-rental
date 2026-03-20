@@ -6,6 +6,7 @@ import { BookingForm } from '@/components/BookingForm';
 import { CarReviews } from '@/components/CarReviews';
 import { getCarTypeLabel } from '@/types/database';
 import { formatDailyRateUsd } from '@/lib/money';
+import { carListingImageUrl } from '@/lib/carImages';
 
 export const revalidate = 60;
 
@@ -56,6 +57,10 @@ export default async function CarDetailPage({
     : { data: [] };
 
   const owner = Array.isArray(car.profiles) ? car.profiles[0] : car.profiles;
+  const heroImage = carListingImageUrl({
+    image_urls: car.image_urls as string[],
+    car_type: car.car_type,
+  });
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -65,20 +70,14 @@ export default async function CarDetailPage({
       <div className="mt-6 grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <div className="aspect-[4/3] relative overflow-hidden rounded-lg bg-gray-100">
-            {(car.image_urls as string[])?.[0] ? (
-              <Image
-                src={(car.image_urls as string[])[0]}
-                alt={`${car.make} ${car.model}`}
-                fill
-                className="object-cover"
-                priority
-                sizes="(max-width: 1024px) 100vw, 66vw"
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center text-gray-400">
-                No image
-              </div>
-            )}
+            <Image
+              src={heroImage}
+              alt={`${car.make} ${car.model}`}
+              fill
+              className="object-cover"
+              priority
+              sizes="(max-width: 1024px) 100vw, 66vw"
+            />
           </div>
           <h1 className="mt-4 text-2xl font-bold text-slate-800">
             {car.make} {car.model} ({car.year})

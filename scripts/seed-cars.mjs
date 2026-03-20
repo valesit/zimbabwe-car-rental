@@ -56,12 +56,15 @@ if (!url || !key || !ownerId) {
   process.exit(1);
 }
 
+const img = (id) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=80`;
+
+// USD/day: March 35, Vitz 45, Aqua 50, Axio 55, Hiace 110 — images match body style (stock photos)
 const cars = [
-  { make: 'Nissan', model: 'March', year: 2022, car_type: 'hatchback', location_city: 'Harare', daily_rate_usd: 35, description: 'Compact and economical.' },
-  { make: 'Toyota', model: 'Vitz', year: 2022, car_type: 'hatchback', location_city: 'Harare', daily_rate_usd: 45, description: 'City-friendly hatchback.' },
-  { make: 'Toyota', model: 'Aqua', year: 2022, car_type: 'hatchback', location_city: 'Harare', daily_rate_usd: 50, description: 'Hybrid hatchback.' },
-  { make: 'Toyota', model: 'Axio', year: 2022, car_type: 'sedan', location_city: 'Harare', daily_rate_usd: 55, description: 'Comfortable sedan.' },
-  { make: 'Toyota', model: 'Hiace', year: 2021, car_type: 'van', location_city: 'Harare', daily_rate_usd: 110, description: 'Spacious van for groups.' },
+  { make: 'Nissan', model: 'March', year: 2022, car_type: 'hatchback', location_city: 'Harare', daily_rate_usd: 35, description: 'Nissan March — $35/day.', image_urls: [img('photo-1549317661-bd32c8ce0db2')] },
+  { make: 'Toyota', model: 'Vitz', year: 2022, car_type: 'hatchback', location_city: 'Harare', daily_rate_usd: 45, description: 'Toyota Vitz — $45/day.', image_urls: [img('photo-1580273916550-e323be2ae537')] },
+  { make: 'Toyota', model: 'Aqua', year: 2022, car_type: 'hatchback', location_city: 'Harare', daily_rate_usd: 50, description: 'Toyota Aqua — $50/day.', image_urls: [img('photo-1502877338535-766e1452684a')] },
+  { make: 'Toyota', model: 'Axio', year: 2022, car_type: 'sedan', location_city: 'Harare', daily_rate_usd: 55, description: 'Toyota Axio — $55/day.', image_urls: [img('photo-1617814076367-b759c7d7e738')] },
+  { make: 'Toyota', model: 'Hiace', year: 2021, car_type: 'van', location_city: 'Harare', daily_rate_usd: 110, description: 'Toyota Hiace — $110/day.', image_urls: [img('photo-1566576912321-d58ddd7a6088')] },
 ];
 
 async function main() {

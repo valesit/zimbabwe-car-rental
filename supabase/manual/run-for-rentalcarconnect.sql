@@ -1,6 +1,13 @@
 -- Rental Car Connect — run in Supabase SQL Editor (postgres role).
 -- Admin user: admin@rentalcarconnect.com | id: 8ca81e4f-e63c-469b-8853-8eca467047b8
 -- Safe to re-run where noted.
+--
+-- Canonical fleet (USD / day) — amounts stored in daily_rate_usd:
+--   Nissan March   $35
+--   Toyota Vitz    $45   (same car as “Viyz” spelling)
+--   Toyota Aqua    $50
+--   Toyota Axio    $55
+--   Toyota Hiace   $110
 
 -- ---------------------------------------------------------------------------
 -- 1) Harare only
@@ -44,17 +51,23 @@ values (
 on conflict (id) do update set role = 'admin';
 
 -- ---------------------------------------------------------------------------
--- 4) Optional: five Harare fleet cars (owner = admin). Skip if you already seeded.
---    If your cars table still has daily_rate_zwl, change daily_rate_usd below to daily_rate_zwl.
+-- 4) Five Harare fleet cars (owner = admin). Safe to re-run: removes same models for this owner first.
+--    If your cars table still has daily_rate_zwl only, rename (section 2) or swap column name in INSERT below.
+--    After insert: set availability in the app (Edit listing) or use scripts/bootstrap-admin-and-fleet.mjs for 365-day slots.
 -- ---------------------------------------------------------------------------
-/*
-insert into public.cars (owner_id, make, model, year, car_type, location_city, daily_rate_usd, description, is_active) values
-  ('8ca81e4f-e63c-469b-8853-8eca467047b8', 'Nissan', 'March', 2022, 'hatchback', 'Harare', 35, 'Compact and economical.', true),
-  ('8ca81e4f-e63c-469b-8853-8eca467047b8', 'Toyota', 'Vitz', 2022, 'hatchback', 'Harare', 45, 'City-friendly hatchback.', true),
-  ('8ca81e4f-e63c-469b-8853-8eca467047b8', 'Toyota', 'Aqua', 2022, 'hatchback', 'Harare', 50, 'Hybrid hatchback.', true),
-  ('8ca81e4f-e63c-469b-8853-8eca467047b8', 'Toyota', 'Axio', 2022, 'sedan', 'Harare', 55, 'Comfortable sedan.', true),
-  ('8ca81e4f-e63c-469b-8853-8eca467047b8', 'Toyota', 'Hiace', 2021, 'van', 'Harare', 110, 'Spacious van for groups.', true);
-*/
+delete from public.cars
+where owner_id = '8ca81e4f-e63c-469b-8853-8eca467047b8'
+  and (
+    (make = 'Nissan' and model = 'March')
+    or (make = 'Toyota' and model in ('Vitz', 'Aqua', 'Axio', 'Hiace'))
+  );
+
+insert into public.cars (owner_id, make, model, year, car_type, location_city, daily_rate_usd, description, is_active, image_urls) values
+  ('8ca81e4f-e63c-469b-8853-8eca467047b8', 'Nissan', 'March', 2022, 'hatchback', 'Harare', 35, 'Nissan March — $35/day.', true, array['https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&w=900&q=80']::text[]),
+  ('8ca81e4f-e63c-469b-8853-8eca467047b8', 'Toyota', 'Vitz', 2022, 'hatchback', 'Harare', 45, 'Toyota Vitz — $45/day.', true, array['https://images.unsplash.com/photo-1580273916550-e323be2ae537?auto=format&fit=crop&w=900&q=80']::text[]),
+  ('8ca81e4f-e63c-469b-8853-8eca467047b8', 'Toyota', 'Aqua', 2022, 'hatchback', 'Harare', 50, 'Toyota Aqua — $50/day.', true, array['https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=900&q=80']::text[]),
+  ('8ca81e4f-e63c-469b-8853-8eca467047b8', 'Toyota', 'Axio', 2022, 'sedan', 'Harare', 55, 'Toyota Axio — $55/day.', true, array['https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=900&q=80']::text[]),
+  ('8ca81e4f-e63c-469b-8853-8eca467047b8', 'Toyota', 'Hiace', 2021, 'van', 'Harare', 110, 'Toyota Hiace — $110/day.', true, array['https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?auto=format&fit=crop&w=900&q=80']::text[]);
 
 -- ---------------------------------------------------------------------------
 -- Verify

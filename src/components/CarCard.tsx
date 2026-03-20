@@ -3,13 +3,14 @@ import Image from 'next/image';
 import type { Car } from '@/types/database';
 import { getCarTypeLabel } from '@/types/database';
 import { formatDailyRateUsd } from '@/lib/money';
+import { carListingImageUrl } from '@/lib/carImages';
 
 interface CarCardProps {
   car: Pick<Car, 'id' | 'make' | 'model' | 'year' | 'car_type' | 'location_city' | 'daily_rate_usd' | 'image_urls' | 'description'>;
 }
 
 export function CarCard({ car }: CarCardProps) {
-  const imageUrl = car.image_urls?.[0] ?? null;
+  const imageUrl = carListingImageUrl(car);
 
   return (
     <Link
@@ -17,19 +18,13 @@ export function CarCard({ car }: CarCardProps) {
       className="group flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition hover:shadow-md"
     >
       <div className="aspect-[4/3] relative bg-gray-100">
-        {imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt={`${car.make} ${car.model}`}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 33vw"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-gray-400">
-            No image
-          </div>
-        )}
+        <Image
+          src={imageUrl}
+          alt={`${car.make} ${car.model}`}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, 33vw"
+        />
       </div>
       <div className="flex flex-1 flex-col p-4">
         <h2 className="font-semibold text-slate-800">
