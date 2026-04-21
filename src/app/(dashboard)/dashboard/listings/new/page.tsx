@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { CarForm } from '@/components/CarForm';
@@ -12,8 +13,12 @@ export default async function NewListingPage() {
   const { data: cities } = await supabase.from('cities').select('name').order('name');
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="text-2xl font-bold text-slate-800">Add a car</h1>
+    <div className="mx-auto max-w-2xl">
+      <Link href="/dashboard/listings" className="text-sm font-medium text-emerald-700 hover:underline">
+        ← My cars
+      </Link>
+      <h1 className="mt-4 font-brand text-3xl font-semibold tracking-tight text-slate-900">Add a car</h1>
+      <p className="mt-1 text-slate-700">List a vehicle for rent in Harare.</p>
       <CarForm cities={cities ?? []} imageStorageOwnerId={user.id} />
     </div>
   );

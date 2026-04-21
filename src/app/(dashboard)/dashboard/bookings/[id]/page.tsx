@@ -36,23 +36,30 @@ export default async function BookingDetailPage({
   const canReview = booking.status === 'completed' && !existingReview;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8">
-      <Link href="/dashboard" className="text-sm text-gray-600 hover:text-slate-800">
-        &larr; Dashboard
+    <div className="mx-auto max-w-2xl">
+      <Link href="/dashboard/bookings" className="text-sm font-medium text-emerald-700 hover:underline">
+        ← My bookings
       </Link>
-      <h1 className="mt-4 text-2xl font-bold text-slate-800">Booking details</h1>
-      <div className="mt-6 rounded-lg border border-gray-200 p-6">
-        <p className="font-medium">
+      <h1 className="mt-4 font-brand text-3xl font-semibold tracking-tight text-slate-900">Booking details</h1>
+      <div className="mt-6 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm ring-1 ring-slate-100">
+        <p className="text-lg font-semibold text-slate-900">
           {car.make} {car.model} ({car.year})
         </p>
-        <p className="text-sm text-gray-500">{car.location_city}</p>
-        <p className="mt-2 text-gray-700">
+        <p className="text-sm text-slate-700">{car.location_city}</p>
+        <p className="mt-3 text-slate-800">
           {booking.start_date} – {booking.end_date}
         </p>
-        <p className="text-gray-700">Status: {booking.status}</p>
-        <p className="mt-2 font-medium">{formatDailyRateUsd(Number(booking.total_amount_usd))}</p>
-        <Link href={`/listings/${car.id}`} className="mt-4 inline-block text-sm text-slate-800 underline">
-          View listing
+        <p className="mt-2 capitalize text-slate-800">
+          Status: <span className="font-semibold">{booking.status}</span>
+        </p>
+        <p className="mt-3 text-lg font-semibold text-emerald-800">
+          {formatDailyRateUsd(Number(booking.total_amount_usd))}
+        </p>
+        <Link
+          href={`/listings/${car.id}`}
+          className="mt-5 inline-block text-sm font-semibold text-emerald-700 hover:underline"
+        >
+          View listing →
         </Link>
       </div>
       {canReview && (

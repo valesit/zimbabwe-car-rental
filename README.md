@@ -25,6 +25,7 @@ A Turo-style car rental platform focused on **Harare** (more cities later): list
    - `supabase/migrations/006_harare_only_cities.sql` (removes other cities if you ran an older `004` that listed many cities)
    - `supabase/migrations/007_rename_amount_columns_usd.sql` (renames `*_zwl` → `*_usd` on existing DBs only)
    - `supabase/migrations/008_storage_and_site_promo.sql` (**Storage** buckets `car-images` + `promo-banners`, RLS, and **`site_promo`** table for the home banner)
+   - `supabase/migrations/009_booking_payments.sql` (PayPal columns on `bookings`: `paypal_order_id`, `paypal_capture_id`, `payment_status`, etc.)
 
    **Or one file:** paste [`supabase/manual/COMPLETE_SETUP.sql`](supabase/manual/COMPLETE_SETUP.sql) (same migrations in order, plus Harare fleet + default admin UUID — create that user in Authentication first, or edit/skip the tenant block per the file header).
 
@@ -35,11 +36,14 @@ A Turo-style car rental platform focused on **Harare** (more cities later): list
 ```bash
 cp .env.local.example .env.local
 # Edit .env.local: NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
-# For bootstrap script, also add SUPABASE_SERVICE_ROLE_KEY (keep secret; never use in client code)
+# For bootstrap script and PayPal booking capture, add SUPABASE_SERVICE_ROLE_KEY (keep secret; never use in client code)
+# PayPal: NEXT_PUBLIC_PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET, and PAYPAL_API_BASE (sandbox vs live). Optional: PAYPAL_WEBHOOK_ID for /api/paypal/webhook.
 
 npm install
 npm run dev
 ```
+
+**Vercel:** add the same variables under Project → Settings → Environment Variables (Preview + Production). Set `PAYPAL_API_BASE` to `https://api-m.paypal.com` when you go live. Register the webhook URL `https://your-domain.com/api/paypal/webhook` in the PayPal Developer Dashboard and paste the webhook ID into `PAYPAL_WEBHOOK_ID`.
 
 Open [http://localhost:3000](http://localhost:3000).
 

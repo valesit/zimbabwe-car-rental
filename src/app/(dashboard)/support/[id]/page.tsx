@@ -22,21 +22,21 @@ export default async function SupportTicketPage({
   if (error || !ticket) notFound();
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8">
-      <Link href="/support" className="text-sm text-gray-600 hover:text-slate-800">
-        &larr; Support
+    <div className="mx-auto max-w-2xl">
+      <Link href="/support" className="text-sm font-medium text-emerald-700 hover:underline">
+        ← Support
       </Link>
-      <h1 className="mt-4 text-2xl font-bold text-slate-800">{ticket.subject}</h1>
-      <p className="mt-2 text-sm text-gray-500">
-        Status: {ticket.status} · Created {new Date(ticket.created_at).toLocaleString()}
+      <h1 className="mt-4 font-brand text-3xl font-semibold tracking-tight text-slate-900">{ticket.subject}</h1>
+      <p className="mt-2 text-sm text-slate-700">
+        <span className="capitalize">{ticket.status}</span> · Created {new Date(ticket.created_at).toLocaleString()}
       </p>
-      <div className="mt-6 rounded-lg border border-gray-200 p-6">
-        <p className="font-medium text-gray-700">Your message</p>
-        <p className="mt-2 text-gray-700 whitespace-pre-wrap">{ticket.message}</p>
+      <div className="mt-6 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm ring-1 ring-slate-100">
+        <p className="font-semibold text-slate-900">Your message</p>
+        <p className="mt-2 whitespace-pre-wrap text-slate-800">{ticket.message}</p>
         {ticket.admin_notes && (
           <>
-            <p className="mt-6 font-medium text-gray-700">Admin response</p>
-            <p className="mt-2 text-gray-700 whitespace-pre-wrap">{ticket.admin_notes}</p>
+            <p className="mt-6 font-semibold text-slate-900">Admin response</p>
+            <p className="mt-2 whitespace-pre-wrap text-slate-800">{ticket.admin_notes}</p>
           </>
         )}
       </div>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { confirmBooking, rejectBooking } from '@/app/(admin)/admin/bookings/actions';
+import { confirmBooking, rejectBooking } from '@/app/actions/booking-review';
 
 export function BookingRowActions({ bookingId, status }: { bookingId: string; status: string }) {
   const router = useRouter();

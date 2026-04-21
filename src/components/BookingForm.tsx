@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/client';
+import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { formatDailyRateUsd } from '@/lib/money';
 import { AvailabilityCalendar, type AvailabilityRow } from '@/components/AvailabilityCalendar';
 import {
@@ -11,6 +11,8 @@ import {
   isRangeEntirelyOpen,
   toISODateLocal,
 } from '@/lib/availability';
+
+const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? '';
 
 interface BookingFormProps {
   carId: string;
@@ -47,58 +49,14 @@ export function BookingForm({
     return isRangeEntirelyOpen(start, end, todayStr, horizonEnd, blockedSet);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    if (!startDate || !endDate) {
-      setError('Please select start and end dates.');
-      return;
-    }
-    const days = getDaysBetween(startDate, endDate);
-    if (days < 1) {
-      setError('End date must be after start date.');
-      return;
-    }
-    if (!isRangeAvailable(startDate, endDate)) {
-      const hint = nextAvailableDate
-        ? ` Next open day: ${formatFriendlyDate(nextAvailableDate)}.`
-        : '';
-      setError(`Selected dates are not fully available.${hint}`);
-      return;
-    }
-    setLoading(true);
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      router.push(`/login?redirect=/listings/${carId}`);
-      return;
-    }
-    const total = dailyRate * days;
-    const { error: bookError } = await supabase.from('bookings').insert({
-      car_id: carId,
-      renter_id: user.id,
-      start_date: startDate,
-      end_date: endDate,
-      status: 'pending',
-      total_amount_usd: total,
-    });
-    if (bookError) {
-      setError(bookError.message);
-      setLoading(false);
-      return;
-    }
-    const availabilityBlocks: { car_id: string; available_date: string; is_available: boolean }[] = [];
-    for (let d = new Date(startDate); d <= new Date(endDate); d.setDate(d.getDate() + 1)) {
-      availabilityBlocks.push({ car_id: carId, available_date: d.toISOString().slice(0, 10), is_available: false });
-    }
-    await supabase.from('car_availability').upsert(availabilityBlocks, { onConflict: 'car_id,available_date' });
-    setLoading(false);
-    router.push('/dashboard');
-    router.refresh();
-  }
+  const canPay =
+    Boolean(startDate && endDate) &&
+    getDaysBetween(startDate, endDate) >= 1 &&
+    isRangeAvailable(startDate, endDate) &&
+    !loading;
 
   return (
-    <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+    <div className="mt-4 space-y-4">
       {nextAvailableDate ? (
         <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-950">
           <span className="font-semibold text-emerald-800">Next available:</span>{' '}
@@ -157,20 +115,90 @@ export function BookingForm({
         </p>
       )}
       {error && <p className="text-sm text-red-600">{error}</p>}
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-600/25 transition hover:bg-emerald-700 disabled:opacity-50"
-      >
-        {loading ? 'Booking...' : 'Request to book'}
-      </button>
+
+      {paypalClientId ? (
+        <PayPalScriptProvider
+          options={{
+            clientId: paypalClientId,
+            currency: 'USD',
+            intent: 'capture',
+          }}
+        >
+          <PayPalButtons
+            style={{ layout: 'vertical', shape: 'rect', label: 'paypal' }}
+            disabled={!canPay}
+            forceReRender={[canPay, startDate, endDate]}
+            createOrder={async () => {
+              setError(null);
+              setLoading(true);
+              try {
+                const res = await fetch('/api/paypal/create-order', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    carId,
+                    startDate,
+                    endDate,
+                  }),
+                });
+                const data = (await res.json()) as { orderID?: string; error?: string };
+                if (res.status === 401) {
+                  router.push(`/login?redirect=/listings/${carId}`);
+                  throw new Error('Please sign in to pay.');
+                }
+                if (!res.ok || !data.orderID) {
+                  throw new Error(data.error ?? 'Could not start checkout.');
+                }
+                return data.orderID;
+              } finally {
+                setLoading(false);
+              }
+            }}
+            onApprove={async (data) => {
+              setError(null);
+              setLoading(true);
+              try {
+                const res = await fetch('/api/paypal/capture-order', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ orderID: data.orderID }),
+                });
+                const payload = (await res.json()) as { bookingId?: string; error?: string };
+                if (!res.ok) {
+                  throw new Error(payload.error ?? 'Payment could not be completed.');
+                }
+                router.push('/dashboard');
+                router.refresh();
+              } finally {
+                setLoading(false);
+              }
+            }}
+            onError={() => {
+              setError('PayPal encountered an error. Try again.');
+              setLoading(false);
+            }}
+          />
+        </PayPalScriptProvider>
+      ) : (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+          Online checkout is not configured. Set{' '}
+          <code className="rounded bg-amber-100 px-1">NEXT_PUBLIC_PAYPAL_CLIENT_ID</code> and server-side
+          PayPal variables in the environment.
+        </p>
+      )}
+
+      {loading && (
+        <p className="text-center text-sm text-gray-600">Processing…</p>
+      )}
+
       <p className="text-center text-xs text-gray-500">
-        Already have an account?{' '}
+        You will pay with PayPal first; your booking is saved after payment succeeds. Already have an
+        account?{' '}
         <Link href="/login" className="font-medium text-emerald-700 underline hover:text-emerald-800">
           Log in
         </Link>
       </p>
-    </form>
+    </div>
   );
 }
 
