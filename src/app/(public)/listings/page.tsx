@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { CarCard } from '@/components/CarCard';
 import { ListingsFilters } from '@/components/ListingsFilters';
+import { hasOpenDayInHorizon, horizonEndIso } from '@/lib/availability';
 
 export const revalidate = 60;
 
@@ -52,6 +53,9 @@ export default async function ListingsPage({
       return renderError('Failed to load listings.', error.message);
     }
 
+    const today = new Date().toISOString().slice(0, 10);
+    const horizonEnd = horizonEndIso(today);
+
     let carIds = (cars ?? []).map((c) => c.id);
     if (start && end && carIds.length > 0) {
       const startDate = new Date(start);
@@ -69,6 +73,25 @@ export default async function ListingsPage({
         .eq('is_available', false);
       const blockedCarIds = new Set((blockedRows ?? []).map((r) => r.car_id));
       carIds = carIds.filter((id) => !blockedCarIds.has(id));
+    } else if (carIds.length > 0) {
+      // Same as home “Cars you can book now”: hide cars with no open day in the booking horizon
+      const { data: horizonBlocked } = await supabase
+        .from('car_availability')
+        .select('car_id, available_date')
+        .in('car_id', carIds)
+        .gte('available_date', today)
+        .lte('available_date', horizonEnd)
+        .eq('is_available', false);
+
+      const blockedByCar = new Map<string, Set<string>>();
+      for (const row of horizonBlocked ?? []) {
+        if (!blockedByCar.has(row.car_id)) blockedByCar.set(row.car_id, new Set());
+        blockedByCar.get(row.car_id)!.add(row.available_date);
+      }
+
+      carIds = carIds.filter((id) =>
+        hasOpenDayInHorizon(today, horizonEnd, blockedByCar.get(id) ?? new Set())
+      );
     }
 
     const filteredCars = (cars ?? []).filter((c) => carIds.includes(c.id));

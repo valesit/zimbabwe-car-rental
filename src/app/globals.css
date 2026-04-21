@@ -3,16 +3,17 @@
 @tailwind utilities;
 
 :root {
-  --background: #fafafa;
-  --foreground: #1e293b; /* slate-800: neutral dark blue-gray, highly visible, not black */
+  --background: #f8fafc;
+  --foreground: #0f172a;
   --accent: #0d9488;
   --accent-hover: #0f766e;
 }
 
+/* Keep UI light and readable even when OS prefers dark mode (inputs & text stay legible). */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0f172a;
-    --foreground: #f1f5f9;
+    --background: #f8fafc;
+    --foreground: #0f172a;
   }
 }
 

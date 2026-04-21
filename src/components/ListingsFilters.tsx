@@ -37,32 +37,35 @@ export function ListingsFilters({ start = '', end = '', city = '', type = '', ci
     router.push(`/listings?${params.toString()}`);
   }
 
+  const fieldClass =
+    'rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm placeholder:text-slate-500 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/30';
+
   return (
     <form onSubmit={handleSubmit} className="mt-4 flex flex-wrap items-end gap-4">
       <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-gray-700">Start date</span>
+        <span className="text-sm font-medium text-slate-800">Start date</span>
         <input
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className={fieldClass}
         />
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-gray-700">End date</span>
+        <span className="text-sm font-medium text-slate-800">End date</span>
         <input
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className={fieldClass}
         />
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-gray-700">City</span>
+        <span className="text-sm font-medium text-slate-800">City</span>
         <select
           value={cityVal}
           onChange={(e) => setCityVal(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm min-w-[140px]"
+          className={`${fieldClass} min-w-[140px]`}
         >
           <option value="">Any</option>
           {cityNames.map((c) => (
@@ -71,11 +74,11 @@ export function ListingsFilters({ start = '', end = '', city = '', type = '', ci
         </select>
       </label>
       <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-gray-700">Car type</span>
+        <span className="text-sm font-medium text-slate-800">Car type</span>
         <select
           value={carType}
           onChange={(e) => setCarType(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm min-w-[120px]"
+          className={`${fieldClass} min-w-[120px]`}
         >
           <option value="">Any</option>
           {CAR_TYPES.map((t) => (
@@ -85,7 +88,7 @@ export function ListingsFilters({ start = '', end = '', city = '', type = '', ci
       </label>
       <button
         type="submit"
-        className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800"
+        className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
       >
         Apply
       </button>

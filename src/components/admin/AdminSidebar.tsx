@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 
 const nav = [
   { href: '/admin', label: 'Overview', icon: IconChart },
+  { href: '/admin/bookings', label: 'Bookings', icon: IconClipboard },
   { href: '/admin/cars', label: 'Cars', icon: IconCar },
   { href: '/admin/users', label: 'Users', icon: IconUsers },
   { href: '/admin/support', label: 'Support', icon: IconLifebuoy },
@@ -15,14 +16,14 @@ export function AdminSidebar({ email }: { email?: string | null }) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-64 shrink-0 flex-col border-r border-white/10 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-white">
-      <div className="border-b border-white/10 px-5 py-6">
-        <Link href="/" className="font-brand text-lg font-semibold tracking-tight text-white">
+    <aside className="flex w-64 shrink-0 flex-col border-r border-slate-200 bg-gradient-to-b from-slate-50 to-white text-slate-800 shadow-sm">
+      <div className="border-b border-slate-200 px-5 py-6">
+        <Link href="/" className="font-brand text-lg font-semibold tracking-tight text-slate-900">
           Rental Car Connect
         </Link>
-        <p className="mt-1 text-xs font-medium uppercase tracking-wider text-teal-300/90">Admin</p>
+        <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-emerald-700">Admin</p>
         {email && (
-          <p className="mt-3 truncate text-xs text-slate-400" title={email}>
+          <p className="mt-3 truncate text-xs text-slate-600" title={email}>
             {email}
           </p>
         )}
@@ -36,25 +37,38 @@ export function AdminSidebar({ email }: { email?: string | null }) {
               href={href}
               className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
                 active
-                  ? 'bg-white/10 text-white shadow-inner shadow-black/20'
-                  : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                  ? 'bg-emerald-100 text-emerald-900 shadow-sm ring-1 ring-emerald-200/80'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
             >
-              <Icon className="h-5 w-5 shrink-0 opacity-80" />
+              <Icon className="h-5 w-5 shrink-0 opacity-90" />
               {label}
             </Link>
           );
         })}
       </nav>
-      <div className="border-t border-white/10 p-4">
+      <div className="border-t border-slate-200 p-4">
         <Link
           href="/"
-          className="flex items-center justify-center rounded-xl bg-teal-500/20 py-2.5 text-sm font-medium text-teal-200 transition hover:bg-teal-500/30"
+          className="flex items-center justify-center rounded-xl border border-slate-200 bg-white py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
         >
           ← Back to site
         </Link>
       </div>
     </aside>
+  );
+}
+
+function IconClipboard({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth={1.5}
+        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+      />
+    </svg>
   );
 }
 
