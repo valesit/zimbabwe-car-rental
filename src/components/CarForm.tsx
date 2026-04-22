@@ -16,6 +16,7 @@ interface CarFormProps {
     location_city: string;
     location_detail: string | null;
     daily_rate_usd: number;
+    refundable_deposit_usd?: number;
     description: string | null;
     image_urls: string[];
   };
@@ -33,6 +34,9 @@ export function CarForm({ car, cities, imageStorageOwnerId }: CarFormProps) {
   const [locationCity, setLocationCity] = useState(car?.location_city ?? '');
   const [locationDetail, setLocationDetail] = useState(car?.location_detail ?? '');
   const [dailyRate, setDailyRate] = useState(car?.daily_rate_usd?.toString() ?? '');
+  const [refundableDeposit, setRefundableDeposit] = useState(
+    car?.refundable_deposit_usd != null ? String(car.refundable_deposit_usd) : '0'
+  );
   const [description, setDescription] = useState(car?.description ?? '');
   const [imageList, setImageList] = useState<string[]>(() =>
     (car?.image_urls ?? []).filter((u) => typeof u === 'string' && u.trim()),
@@ -67,6 +71,7 @@ export function CarForm({ car, cities, imageStorageOwnerId }: CarFormProps) {
       location_city: locationCity,
       location_detail: locationDetail || null,
       daily_rate_usd: parseFloat(dailyRate) || 0,
+      refundable_deposit_usd: Math.max(0, parseFloat(refundableDeposit) || 0),
       description: description || null,
       image_urls,
       is_active: true,
@@ -182,6 +187,20 @@ export function CarForm({ car, cities, imageStorageOwnerId }: CarFormProps) {
           step={0.01}
           className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
         />
+      </label>
+      <label className="block">
+        <span className="text-sm font-medium text-gray-700">Refundable deposit (USD)</span>
+        <input
+          type="number"
+          value={refundableDeposit}
+          onChange={(e) => setRefundableDeposit(e.target.value)}
+          min={0}
+          step={0.01}
+          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+        />
+        <p className="mt-1 text-xs text-gray-500">
+          Charged with the booking; refundable per your policy (not automated in this app).
+        </p>
       </label>
       <label className="block">
         <span className="text-sm font-medium text-gray-700">Description</span>

@@ -2,13 +2,15 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import {
   buildCustomId,
+  computeBookingTotalUsd,
   fetchAvailabilityInRange,
   formatPayPalAmount,
   isRangeBookable,
-  totalUsd,
+  roundMoney2,
   computeBookingDays,
 } from '@/lib/booking-paypal.server';
 import { createPayPalOrder, getPayPalAccessToken } from '@/lib/paypal';
+import { allowPayPalCreateOrder } from '@/lib/paypal-rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,6 +20,7 @@ export async function POST(request: Request) {
       carId?: string;
       startDate?: string;
       endDate?: string;
+      includePickupDropoff?: boolean;
     };
     const carId = body.carId?.trim();
     const startDate = body.startDate?.trim();
@@ -37,9 +40,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
 
+    if (!allowPayPalCreateOrder(user.id)) {
+      return NextResponse.json(
+        { error: 'Too many checkout attempts. Try again in a few minutes.' },
+        { status: 429 }
+      );
+    }
+
+    const includePickupDropoff = Boolean(body.includePickupDropoff);
+
     const { data: car, error: carError } = await supabase
       .from('cars')
-      .select('id, daily_rate_usd, is_active')
+      .select('id, daily_rate_usd, is_active, refundable_deposit_usd')
       .eq('id', carId)
       .maybeSingle();
 
@@ -64,9 +76,18 @@ export async function POST(request: Request) {
     }
 
     const daily = Number(car.daily_rate_usd);
-    const total = totalUsd(daily, days);
+    const depositSnapshot = roundMoney2(Math.max(0, Number(car.refundable_deposit_usd ?? 0)));
+    const depositStr = formatPayPalAmount(depositSnapshot);
+    const total = computeBookingTotalUsd(daily, days, includePickupDropoff, depositSnapshot);
     const amountUsd = formatPayPalAmount(total);
-    const customId = buildCustomId(carId, startDate, endDate, user.id);
+    const customId = buildCustomId(
+      carId,
+      startDate,
+      endDate,
+      user.id,
+      includePickupDropoff,
+      depositStr
+    );
 
     const accessToken = await getPayPalAccessToken();
     const { id: orderID } = await createPayPalOrder({

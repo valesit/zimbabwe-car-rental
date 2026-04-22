@@ -9,6 +9,7 @@ import {
   getPayPalAccessToken,
   getPayPalOrder,
 } from '@/lib/paypal';
+import { allowPayPalCaptureOrder } from '@/lib/paypal-rate-limit';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +27,13 @@ export async function POST(request: Request) {
     } = await supabase.auth.getUser();
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
+    }
+
+    if (!allowPayPalCaptureOrder(user.id)) {
+      return NextResponse.json(
+        { error: 'Too many capture attempts. Try again in a few minutes.' },
+        { status: 429 }
+      );
     }
 
     const accessToken = await getPayPalAccessToken();

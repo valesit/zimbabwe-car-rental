@@ -31,6 +31,8 @@ export interface Car {
   location_city: string;
   location_detail: string | null;
   daily_rate_usd: number;
+  /** Refundable security deposit charged with the booking (USD). Default 0 before migration 010. */
+  refundable_deposit_usd?: number;
   image_urls: string[];
   description: string | null;
   is_active: boolean;
@@ -54,6 +56,10 @@ export interface Booking {
   end_date: string;
   status: BookingStatus;
   total_amount_usd: number;
+  /** Set after migration 010. */
+  include_pickup_dropoff?: boolean;
+  pickup_dropoff_fee_usd?: number;
+  refundable_deposit_charged_usd?: number;
   created_at: string;
   updated_at: string;
   car?: Car;

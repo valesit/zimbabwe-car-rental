@@ -570,3 +570,17 @@ alter table public.bookings
 create unique index if not exists idx_bookings_paypal_order_id_unique
   on public.bookings (paypal_order_id)
   where paypal_order_id is not null;
+
+-- ---------------------------------------------------------------------------
+-- Migration 010 (also in supabase/migrations/010_car_deposit_booking_extras.sql)
+-- ---------------------------------------------------------------------------
+alter table public.cars
+  add column if not exists refundable_deposit_usd decimal(12, 2) not null default 0
+    check (refundable_deposit_usd >= 0);
+
+alter table public.bookings
+  add column if not exists include_pickup_dropoff boolean not null default false,
+  add column if not exists pickup_dropoff_fee_usd decimal(12, 2) not null default 0
+    check (pickup_dropoff_fee_usd >= 0),
+  add column if not exists refundable_deposit_charged_usd decimal(12, 2) not null default 0
+    check (refundable_deposit_charged_usd >= 0);

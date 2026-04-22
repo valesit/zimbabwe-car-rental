@@ -17,7 +17,9 @@ export default async function BookingDetailPage({
   const { data: booking, error } = await supabase
     .from('bookings')
     .select(`
-      id, start_date, end_date, status, total_amount_usd, car_id, renter_id,
+      id, start_date, end_date, status, total_amount_usd,
+      include_pickup_dropoff, pickup_dropoff_fee_usd, refundable_deposit_charged_usd,
+      car_id, renter_id,
       cars (id, make, model, year, location_city, owner_id)
     `)
     .eq('id', id)
@@ -52,8 +54,19 @@ export default async function BookingDetailPage({
         <p className="mt-2 capitalize text-slate-800">
           Status: <span className="font-semibold">{booking.status}</span>
         </p>
+        <div className="mt-3 space-y-1 text-sm text-slate-700">
+          {Number(booking.pickup_dropoff_fee_usd ?? 0) > 0 && (
+            <p>Pick-up &amp; drop-off: {formatDailyRateUsd(Number(booking.pickup_dropoff_fee_usd))}</p>
+          )}
+          {Number(booking.refundable_deposit_charged_usd ?? 0) > 0 && (
+            <p>
+              Refundable deposit (charged):{' '}
+              {formatDailyRateUsd(Number(booking.refundable_deposit_charged_usd))}
+            </p>
+          )}
+        </div>
         <p className="mt-3 text-lg font-semibold text-emerald-800">
-          {formatDailyRateUsd(Number(booking.total_amount_usd))}
+          Total paid: {formatDailyRateUsd(Number(booking.total_amount_usd))}
         </p>
         <Link
           href={`/listings/${car.id}`}

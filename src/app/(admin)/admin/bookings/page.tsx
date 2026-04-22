@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { getRenterAuthEmails } from '@/lib/admin/renter-emails';
 import { formatDailyRateUsd } from '@/lib/money';
 import { BookingRowActions } from '@/components/admin/BookingRowActions';
 
@@ -21,13 +22,14 @@ export default async function AdminBookingsPage({
       `
       id,
       car_id,
+      renter_id,
       start_date,
       end_date,
       status,
       total_amount_usd,
       created_at,
       cars (make, model),
-      profiles (display_name)
+      renter:profiles!bookings_renter_id_fkey (display_name, phone)
     `,
     )
     .order('created_at', { ascending: false });
@@ -47,6 +49,17 @@ export default async function AdminBookingsPage({
       </div>
     );
   }
+
+  const list = rows ?? [];
+  const seen = new Set<string>();
+  const distinctRenterIds: string[] = [];
+  for (const b of list) {
+    if (b.renter_id && !seen.has(b.renter_id)) {
+      seen.add(b.renter_id);
+      distinctRenterIds.push(b.renter_id);
+    }
+  }
+  const emailByRenter = await getRenterAuthEmails(distinctRenterIds);
 
   const filterLinks: { label: string; value: string }[] = [
     { label: 'All', value: 'all' },
@@ -96,29 +109,44 @@ export default async function AdminBookingsPage({
         <table className="w-full text-left text-sm">
           <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-700">
             <tr>
+              <th className="px-4 py-3">Reference</th>
               <th className="px-4 py-3">Vehicle</th>
               <th className="px-4 py-3">Dates</th>
               <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3">Renter</th>
+              <th className="px-4 py-3">Phone</th>
+              <th className="px-4 py-3">Email</th>
               <th className="px-4 py-3 text-right">Total</th>
               <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {(rows ?? []).length === 0 ? (
+            {list.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-slate-600">
+                <td colSpan={9} className="px-4 py-10 text-center text-slate-600">
                   No bookings for this filter.
                 </td>
               </tr>
             ) : (
-              (rows ?? []).map((row) => {
+              list.map((row) => {
                 const car = row.cars as { make?: string; model?: string } | null;
-                const renter = row.profiles as { display_name?: string | null } | null;
+                const renter = row.renter as { display_name?: string | null; phone?: string | null } | null;
                 const c = Array.isArray(car) ? car[0] : car;
                 const r = Array.isArray(renter) ? renter[0] : renter;
+                const refId = String(row.id);
+                const refShort = `${refId.slice(0, 8)}…`;
+                const email = row.renter_id ? (emailByRenter[row.renter_id] ?? null) : null;
                 return (
                   <tr key={row.id} className="hover:bg-slate-50/80">
+                    <td className="px-4 py-3">
+                      <span
+                        className="font-mono text-xs text-slate-800"
+                        title={refId}
+                        aria-label={`Booking reference ${refId}`}
+                      >
+                        {refShort}
+                      </span>
+                    </td>
                     <td className="px-4 py-3 font-medium text-slate-900">
                       {c?.make} {c?.model}
                     </td>
@@ -130,7 +158,9 @@ export default async function AdminBookingsPage({
                         {row.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-slate-800">{r?.display_name ?? '—'}</td>
+                    <td className="px-4 py-3 text-slate-800">{r?.display_name?.trim() || '—'}</td>
+                    <td className="px-4 py-3 text-slate-800">{r?.phone?.trim() || '—'}</td>
+                    <td className="px-4 py-3 break-all text-slate-800">{email?.trim() || '—'}</td>
                     <td className="px-4 py-3 text-right font-semibold text-emerald-800">
                       {formatDailyRateUsd(Number(row.total_amount_usd))}
                     </td>

@@ -7,7 +7,14 @@ import {
   toISODateLocal,
   type AvailabilityRow,
 } from '@/lib/availability';
+import {
+  computeBookingTotalUsd,
+  PICKUP_DROPOFF_FEE_USD,
+  roundMoney2,
+} from '@/lib/booking-pricing';
 import { createServiceRoleClient } from '@/lib/supabase/admin';
+
+export { computeBookingTotalUsd, roundMoney2, totalUsd } from '@/lib/booking-pricing';
 
 export function computeBookingDays(startDate: string, endDate: string): number {
   const s = new Date(startDate).getTime();
@@ -15,32 +22,45 @@ export function computeBookingDays(startDate: string, endDate: string): number {
   return Math.ceil((e - s) / (1000 * 60 * 60 * 24)) + 1;
 }
 
-export function totalUsd(dailyRateUsd: number, days: number): number {
-  return Math.round(dailyRateUsd * days * 100) / 100;
-}
-
 export function formatPayPalAmount(usd: number): string {
   return usd.toFixed(2);
 }
 
+/** PayPal purchase_unit custom_id: v2 adds pickup flag and deposit snapshot (two decimals). */
 export function buildCustomId(
   carId: string,
   startDate: string,
   endDate: string,
-  renterId: string
+  renterId: string,
+  includePickupDropoff: boolean,
+  depositUsdSnapshot: string
 ): string {
-  return `${carId}|${startDate}|${endDate}|${renterId}`;
+  const p = includePickupDropoff ? '1' : '0';
+  return `${carId}|${startDate}|${endDate}|${renterId}|${p}|${depositUsdSnapshot}`;
 }
 
-export function parseCustomId(
-  customId: string | undefined
-): { carId: string; startDate: string; endDate: string; renterId: string } | null {
+export function parseCustomId(customId: string | undefined): {
+  carId: string;
+  startDate: string;
+  endDate: string;
+  renterId: string;
+  includePickupDropoff: boolean;
+  depositUsd: number;
+} | null {
   if (!customId) return null;
   const parts = customId.split('|');
-  if (parts.length !== 4) return null;
-  const [carId, startDate, endDate, renterId] = parts;
-  if (!carId || !startDate || !endDate || !renterId) return null;
-  return { carId, startDate, endDate, renterId };
+  if (parts.length === 4) {
+    const [carId, startDate, endDate, renterId] = parts;
+    if (!carId || !startDate || !endDate || !renterId) return null;
+    return { carId, startDate, endDate, renterId, includePickupDropoff: false, depositUsd: 0 };
+  }
+  if (parts.length !== 6) return null;
+  const [carId, startDate, endDate, renterId, pickupFlag, depositStr] = parts;
+  if (!carId || !startDate || !endDate || !renterId || depositStr === undefined) return null;
+  const includePickupDropoff = pickupFlag === '1';
+  const depositUsd = Number.parseFloat(depositStr);
+  if (!Number.isFinite(depositUsd) || depositUsd < 0) return null;
+  return { carId, startDate, endDate, renterId, includePickupDropoff, depositUsd: roundMoney2(depositUsd) };
 }
 
 export async function fetchAvailabilityInRange(
@@ -99,7 +119,7 @@ export async function finalizePaidBooking(
   if (!parsed) {
     return { ok: false, status: 400, message: 'Invalid order metadata.' };
   }
-  const { carId, startDate, endDate, renterId } = parsed;
+  const { carId, startDate, endDate, renterId, includePickupDropoff, depositUsd } = parsed;
 
   if (input.expectedRenterId && input.expectedRenterId !== renterId) {
     return { ok: false, status: 403, message: 'Order does not belong to this user.' };
@@ -130,7 +150,7 @@ export async function finalizePaidBooking(
   }
 
   const daily = Number(car.daily_rate_usd);
-  const expectedTotal = totalUsd(daily, days);
+  const expectedTotal = computeBookingTotalUsd(daily, days, includePickupDropoff, depositUsd);
   const paid = Number.parseFloat(input.amountValue);
   if (!Number.isFinite(paid) || Math.abs(paid - expectedTotal) > 0.02) {
     return {
@@ -155,6 +175,8 @@ export async function finalizePaidBooking(
     return { ok: true, bookingId: existing.id, duplicate: true };
   }
 
+  const pickupFee = includePickupDropoff ? PICKUP_DROPOFF_FEE_USD : 0;
+
   const { data: inserted, error: insertError } = await admin
     .from('bookings')
     .insert({
@@ -164,6 +186,9 @@ export async function finalizePaidBooking(
       end_date: endDate,
       status: 'pending',
       total_amount_usd: expectedTotal,
+      include_pickup_dropoff: includePickupDropoff,
+      pickup_dropoff_fee_usd: pickupFee,
+      refundable_deposit_charged_usd: depositUsd,
       paypal_order_id: input.orderId,
       paypal_capture_id: input.captureId,
       payment_currency: 'USD',

@@ -22,14 +22,18 @@ export default async function CarDetailPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const { data: car, error } = await supabase
     .from('cars')
-    .select(`
+    .select(
+      `
       id, make, model, year, car_type, location_city, location_detail,
-      daily_rate_usd, image_urls, description, is_active, owner_id,
-      profiles:owner_id (display_name, is_verified, is_premium)
-    `)
+      daily_rate_usd, refundable_deposit_usd, image_urls, description, is_active
+    `
+    )
     .eq('id', id)
     .single();
 
@@ -66,12 +70,6 @@ export default async function CarDetailPage({
         .limit(10)
     : { data: [] };
 
-  const owner = Array.isArray(car.profiles) ? car.profiles[0] : car.profiles;
-  const ownerRow = owner as {
-    display_name: string | null;
-    is_verified: boolean;
-    is_premium: boolean;
-  } | null;
   const heroImage = carListingImageUrl({
     image_urls: car.image_urls as string[],
     car_type: car.car_type,
@@ -126,32 +124,6 @@ export default async function CarDetailPage({
             <p className="mt-5 text-base leading-relaxed text-gray-700">{car.description}</p>
           )}
 
-          {ownerRow && (
-            <div className="mt-8 rounded-xl border border-emerald-100 bg-gradient-to-br from-emerald-50/60 to-white p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-emerald-800/80">Listed by</p>
-              <div className="mt-1 flex flex-wrap items-center gap-2">
-                <p className="text-lg font-semibold text-slate-800">
-                  {ownerRow.display_name ?? 'Owner'}
-                </p>
-                {ownerRow.is_verified && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2 py-0.5 text-xs font-medium text-white">
-                    <svg className="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Verified
-                  </span>
-                )}
-              </div>
-              <p className="mt-2 text-sm text-gray-600">
-                Request a booking — the owner will confirm your trip. Questions? Use support after you sign in.
-              </p>
-            </div>
-          )}
-
           <div className="mt-10 border-t border-gray-100 pt-8">
             <h2 className="font-brand text-xl font-medium text-emerald-800 sm:text-2xl">Reviews</h2>
             <CarReviews reviews={reviews ?? []} />
@@ -164,18 +136,21 @@ export default async function CarDetailPage({
               <span className="text-lg font-semibold text-emerald-600/80"> / day</span>
             </p>
             <p className="mt-2 text-xs text-gray-500">Taxes and extras may apply at pickup.</p>
-            {ownerRow && (
-              <p className="mt-3 text-sm text-gray-600">
-                <span className="text-gray-500">Owner</span>{' '}
-                <span className="font-medium text-slate-800">{ownerRow.display_name ?? 'User'}</span>
+            {Number(car.refundable_deposit_usd ?? 0) > 0 && (
+              <p className="mt-2 text-sm text-slate-700">
+                <span className="font-medium text-slate-800">Refundable deposit:</span>{' '}
+                {formatDailyRateUsd(Number(car.refundable_deposit_usd))}{' '}
+                (charged at checkout; refundable per rental terms)
               </p>
             )}
             <BookingForm
               carId={car.id}
               dailyRate={Number(car.daily_rate_usd)}
+              refundableDepositUsd={Number(car.refundable_deposit_usd ?? 0)}
               availability={availability ?? []}
               nextAvailableDate={nextAvailableDate}
               horizonEnd={horizonEnd}
+              isLoggedIn={Boolean(user)}
             />
           </div>
         </div>

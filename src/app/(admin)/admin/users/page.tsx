@@ -1,8 +1,12 @@
 import { createClient } from '@/lib/supabase/server';
+import { AdminCreateUserForm } from '@/components/AdminCreateUserForm';
 import { UserRowActions } from '@/components/UserRowActions';
 
 export default async function AdminUsersPage() {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const { data: profiles } = await supabase
     .from('profiles')
     .select('id, display_name, role, is_verified, is_premium, city, created_at')
@@ -12,6 +16,9 @@ export default async function AdminUsersPage() {
     <div className="mx-auto max-w-6xl">
       <h1 className="font-brand text-3xl font-semibold tracking-tight text-slate-900">Users</h1>
       <p className="mt-1 text-slate-600">Profiles, roles, and verification flags.</p>
+
+      <AdminCreateUserForm />
+
       <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-200/60">
         <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-slate-100">
@@ -36,6 +43,8 @@ export default async function AdminUsersPage() {
                 <td className="px-4 py-3">
                   <UserRowActions
                     userId={p.id}
+                    role={p.role as 'admin' | 'user'}
+                    currentAdminId={user?.id ?? ''}
                     isVerified={p.is_verified}
                     isPremium={p.is_premium}
                   />
