@@ -57,13 +57,13 @@ export default async function HomePage() {
     <div className="min-h-[calc(100vh-4rem)]">
       <HomePromoBanner />
       {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-teal-50 via-white to-slate-50 px-4 pt-16 pb-20 sm:px-6 lg:px-8">
+      <section className="relative overflow-hidden bg-gradient-to-br from-teal-50 via-white to-slate-50 px-4 pt-10 pb-16 sm:px-6 sm:pt-16 sm:pb-20 lg:px-8">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%230d9488\' fill-opacity=\'0.04\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-60" aria-hidden="true" />
         <div className="relative mx-auto max-w-4xl text-center">
-          <h1 className="font-brand text-4xl font-medium tracking-tight text-slate-800 sm:text-5xl lg:text-6xl">
+          <h1 className="font-brand text-3xl font-medium tracking-tight text-slate-800 sm:text-4xl md:text-5xl lg:text-6xl">
             Rent a car in <span className="text-teal-600">Harare</span>
           </h1>
-          <p className="mt-5 text-lg text-gray-600 sm:text-xl max-w-2xl mx-auto">
+          <p className="mt-4 max-w-2xl mx-auto text-base text-gray-600 sm:mt-5 sm:text-lg lg:text-xl">
             Find and book cars from local owners. Harare today — more cities coming soon.
           </p>
           <div className="mx-auto mt-10 max-w-3xl">
@@ -74,7 +74,10 @@ export default async function HomePage() {
         <div className="relative mx-auto mt-14 max-w-5xl">
           <div className="flex gap-4 justify-center flex-wrap px-2">
             {HERO_IMAGES.map((src, i) => (
-              <div key={i} className="relative h-40 w-64 overflow-hidden rounded-2xl shadow-lg ring-1 ring-gray-900/5">
+              <div
+                key={i}
+                className="relative h-36 w-full max-w-[20rem] overflow-hidden rounded-2xl shadow-lg ring-1 ring-gray-900/5 sm:h-40 sm:w-64 sm:max-w-none"
+              >
                 <Image
                   src={src}
                   alt=""

@@ -8,6 +8,7 @@ export function AdminCreateUserForm() {
   const [email, setEmail] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [mode, setMode] = useState<'invite' | 'password'>('invite');
+  const [role, setRole] = useState<'user' | 'admin'>('user');
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -26,6 +27,7 @@ export function AdminCreateUserForm() {
           email,
           displayName: displayName.trim() || undefined,
           mode,
+          role,
           password: mode === 'password' ? password : undefined,
         }),
       });
@@ -48,9 +50,8 @@ export function AdminCreateUserForm() {
     <div className="mt-8 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm ring-1 ring-slate-100">
       <h2 className="font-brand text-lg font-semibold text-slate-900">Create user</h2>
       <p className="mt-1 text-sm text-slate-600">
-        Invite by email (recommended) or create an account with a temporary password. New users get
-        the default <span className="font-medium">user</span> role; use <span className="font-medium">Make admin</span>{' '}
-        below to grant admin access.
+        Invite by email (recommended) or create an account with a temporary password. Choose their
+        app role below; you can still change it later from the user list.
       </p>
       <form onSubmit={(e) => void onSubmit(e)} className="mt-4 space-y-4">
         <label className="block">
@@ -74,6 +75,27 @@ export function AdminCreateUserForm() {
             placeholder="Jane Doe"
           />
         </label>
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium text-slate-700">Role</legend>
+          <label className="flex items-center gap-2 text-sm text-slate-700">
+            <input
+              type="radio"
+              name="userRole"
+              checked={role === 'user'}
+              onChange={() => setRole('user')}
+            />
+            User (renter / owner)
+          </label>
+          <label className="flex items-center gap-2 text-sm text-slate-700">
+            <input
+              type="radio"
+              name="userRole"
+              checked={role === 'admin'}
+              onChange={() => setRole('admin')}
+            />
+            Admin (full dashboard access)
+          </label>
+        </fieldset>
         <fieldset className="space-y-2">
           <legend className="text-sm font-medium text-slate-700">How to create</legend>
           <label className="flex items-center gap-2 text-sm text-slate-700">

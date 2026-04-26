@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createServiceRoleClient } from '@/lib/supabase/admin';
 import { getAppOrigin } from '@/lib/app-origin';
 import { allowAdminCreateUser } from '@/lib/admin-user-rate-limit';
+import type { ProfileRole } from '@/types/database';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,7 +12,22 @@ type Body = {
   mode?: 'invite' | 'password';
   password?: string;
   displayName?: string;
+  /** App role stored on `public.profiles`; default `user`. */
+  role?: ProfileRole;
 };
+
+async function applyProfileRole(
+  admin: ReturnType<typeof createServiceRoleClient>,
+  userId: string,
+  role: ProfileRole
+): Promise<{ error: string | null }> {
+  const { error } = await admin.from('profiles').update({ role }).eq('id', userId);
+  if (error) {
+    console.error('applyProfileRole:', error);
+    return { error: error.message };
+  }
+  return { error: null };
+}
 
 export async function POST(request: Request) {
   try {
@@ -43,6 +59,7 @@ export async function POST(request: Request) {
     const email = body.email?.trim().toLowerCase();
     const mode = body.mode === 'password' ? 'password' : 'invite';
     const displayName = body.displayName?.trim() || undefined;
+    const role: ProfileRole = body.role === 'admin' ? 'admin' : 'user';
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: 'A valid email is required.' }, { status: 400 });
@@ -53,7 +70,7 @@ export async function POST(request: Request) {
     const redirectTo = `${origin}/login`;
 
     if (mode === 'invite') {
-      const { error } = await admin.auth.admin.inviteUserByEmail(email, {
+      const { data: invited, error } = await admin.auth.admin.inviteUserByEmail(email, {
         data: displayName ? { full_name: displayName, name: displayName } : undefined,
         redirectTo,
       });
@@ -61,7 +78,29 @@ export async function POST(request: Request) {
         console.error('inviteUserByEmail:', error);
         return NextResponse.json({ error: error.message }, { status: 400 });
       }
-      return NextResponse.json({ ok: true, mode: 'invite', message: 'Invitation email sent.' });
+      const newId = invited?.user?.id;
+      if (role === 'admin' && newId) {
+        const { error: roleErr } = await applyProfileRole(admin, newId, 'admin');
+        if (roleErr) {
+          return NextResponse.json(
+            {
+              error:
+                'Invitation was sent but admin role could not be saved. Set role manually in the user list.',
+            },
+            { status: 500 }
+          );
+        }
+      }
+      return NextResponse.json({
+        ok: true,
+        mode: 'invite',
+        message:
+          role === 'admin' && newId
+            ? 'Invitation email sent. They will have admin access after they accept the invite.'
+            : role === 'admin'
+              ? 'Invitation email sent. After they appear in the user list, confirm they have the Admin role or use Make admin.'
+              : 'Invitation email sent.',
+      });
     }
 
     const password = body.password?.trim();
@@ -72,7 +111,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { error } = await admin.auth.admin.createUser({
+    const { data: created, error } = await admin.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
@@ -82,10 +121,26 @@ export async function POST(request: Request) {
       console.error('createUser:', error);
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
+    const newId = created?.user?.id;
+    if (newId && role === 'admin') {
+      const { error: roleErr } = await applyProfileRole(admin, newId, 'admin');
+      if (roleErr) {
+        return NextResponse.json(
+          {
+            error:
+              'User was created but admin role could not be saved. Use Make admin in the user list.',
+          },
+          { status: 500 }
+        );
+      }
+    }
     return NextResponse.json({
       ok: true,
       mode: 'password',
-      message: 'User created. They can sign in with the email and password you set.',
+      message:
+        role === 'admin'
+          ? 'Admin user created. They can sign in with the email and password you set.'
+          : 'User created. They can sign in with the email and password you set.',
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : 'Failed to create user.';

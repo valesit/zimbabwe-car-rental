@@ -26,36 +26,25 @@ export function SearchForm({ cities }: { cities?: { name: string }[] }) {
     router.push(`/listings?${params.toString()}`);
   }
 
+  const fieldClass =
+    'w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm shadow-sm transition focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 sm:px-4';
+
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-wrap items-end gap-4 rounded-2xl border border-gray-200/80 bg-white p-6 shadow-lg ring-1 ring-gray-900/5"
+      className="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200/80 bg-white p-4 shadow-lg ring-1 ring-gray-900/5 sm:grid-cols-2 sm:gap-4 sm:p-6 lg:grid-cols-12 lg:items-end"
     >
-      <label className="flex flex-col gap-1.5">
+      <label className="flex flex-col gap-1.5 sm:col-span-1 lg:col-span-2">
         <span className="text-sm font-semibold text-gray-700">Start date</span>
-        <input
-          type="date"
-          value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm shadow-sm transition focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
-        />
+        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={fieldClass} />
       </label>
-      <label className="flex flex-col gap-1.5">
+      <label className="flex flex-col gap-1.5 sm:col-span-1 lg:col-span-2">
         <span className="text-sm font-semibold text-gray-700">End date</span>
-        <input
-          type="date"
-          value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm shadow-sm transition focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
-        />
+        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={fieldClass} />
       </label>
-      <label className="flex flex-col gap-1.5">
+      <label className="flex flex-col gap-1.5 sm:col-span-1 lg:col-span-2">
         <span className="text-sm font-semibold text-gray-700">City</span>
-        <select
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm min-w-[140px] shadow-sm transition focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
-        >
+        <select value={city} onChange={(e) => setCity(e.target.value)} className={fieldClass}>
           <option value="">Any</option>
           {cityOptions.map((c) => (
             <option key={typeof c === 'string' ? c : c.name} value={typeof c === 'string' ? c : c.name}>
@@ -64,25 +53,25 @@ export function SearchForm({ cities }: { cities?: { name: string }[] }) {
           ))}
         </select>
       </label>
-      <label className="flex flex-col gap-1.5">
+      <label className="flex flex-col gap-1.5 sm:col-span-1 lg:col-span-2">
         <span className="text-sm font-semibold text-gray-700">Car type</span>
-        <select
-          value={carType}
-          onChange={(e) => setCarType(e.target.value)}
-          className="rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm min-w-[120px] shadow-sm transition focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
-        >
+        <select value={carType} onChange={(e) => setCarType(e.target.value)} className={fieldClass}>
           <option value="">Any</option>
           {CAR_TYPES.map((t) => (
-            <option key={t} value={t}>{CAR_TYPE_LABELS[t]}</option>
+            <option key={t} value={t}>
+              {CAR_TYPE_LABELS[t]}
+            </option>
           ))}
         </select>
       </label>
-      <button
-        type="submit"
-        className="rounded-lg bg-teal-600 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2"
-      >
-        Search
-      </button>
+      <div className="flex items-stretch sm:col-span-2 lg:col-span-4 lg:items-end">
+        <button
+          type="submit"
+          className="w-full rounded-lg bg-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 lg:w-auto lg:min-w-[8.5rem] lg:py-2.5"
+        >
+          Search
+        </button>
+      </div>
     </form>
   );
 }
