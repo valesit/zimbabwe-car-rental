@@ -193,7 +193,7 @@ export function AvailabilityCalendar({
             Open
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="inline-block h-3 w-3 rounded-md bg-slate-100 ring-1 ring-slate-200/80" /> Booked
+            <span className="inline-block h-3 w-3 rounded-md bg-slate-100 ring-1 ring-slate-200/80" /> Unavailable
           </span>
           <span className="inline-flex items-center gap-1.5">
             <span className="inline-block h-3 w-3 rounded-md bg-emerald-600 shadow-sm ring-1 ring-emerald-700/30" />{' '}

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import { ListingPublishToggle } from '@/components/ListingPublishToggle';
 
 export default async function DashboardListingsPage() {
   const supabase = await createClient();
@@ -19,7 +20,9 @@ export default async function DashboardListingsPage() {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="font-brand text-3xl font-semibold tracking-tight text-slate-900">My cars</h1>
-          <p className="mt-1 text-slate-700">Vehicles you list for rent — edit details and availability anytime.</p>
+          <p className="mt-1 text-slate-700">
+            Publish to show on the site, or unpublish anytime. Dates stay open unless you block them or a booking uses them.
+          </p>
         </div>
         <Link
           href="/dashboard/listings/new"
@@ -44,7 +47,7 @@ export default async function DashboardListingsPage() {
           {(myCars ?? []).map((car) => (
             <div
               key={car.id}
-              className="flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm ring-1 ring-slate-100 sm:flex-row sm:items-center"
+              className="flex flex-col justify-between gap-4 rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm ring-1 ring-slate-100 sm:flex-row sm:items-center"
             >
               <div>
                 <p className="font-semibold text-slate-900">
@@ -52,20 +55,23 @@ export default async function DashboardListingsPage() {
                   <span className="font-medium text-slate-600">({car.year})</span>
                 </p>
                 <p className="mt-1 text-sm text-slate-700">{car.location_city}</p>
-                <p className="mt-1 text-xs font-medium text-slate-600">
+                <p className="mt-1 text-xs font-medium">
                   {car.is_active ? (
-                    <span className="text-emerald-700">Active</span>
+                    <span className="text-emerald-700">Published</span>
                   ) : (
-                    <span className="text-amber-700">Hidden</span>
+                    <span className="text-slate-600">Unpublished — not visible on listings</span>
                   )}
                 </p>
               </div>
-              <Link
-                href={`/dashboard/listings/${car.id}/edit`}
-                className="mt-4 inline-flex shrink-0 rounded-lg border border-slate-200 px-4 py-2 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-50 sm:mt-0"
-              >
-                Edit listing
-              </Link>
+              <div className="flex shrink-0 flex-col gap-2 sm:items-end">
+                <ListingPublishToggle carId={car.id} isPublished={car.is_active} />
+                <Link
+                  href={`/dashboard/listings/${car.id}/edit`}
+                  className="inline-flex rounded-lg border border-slate-200 px-4 py-2 text-center text-sm font-semibold text-emerald-800 transition hover:bg-emerald-50"
+                >
+                  Edit &amp; block dates
+                </Link>
+              </div>
             </div>
           ))}
         </div>

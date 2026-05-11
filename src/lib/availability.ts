@@ -1,4 +1,4 @@
-/** Days ahead we allow booking without explicit calendar rows (opt-out: only `is_available: false` blocks). */
+/** Days ahead we allow booking. No row on `car_availability` = date is open; only rows with `is_available: false` block (manual or after a booking). */
 export const BOOKING_HORIZON_DAYS = 400;
 
 export interface AvailabilityRow {
@@ -13,7 +13,7 @@ export function toISODateLocal(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
-/** Dates the owner (or a booking) has marked unavailable */
+/** Dates blocked in the calendar (`is_available: false`: manual block or booking hold). */
 export function buildBlockedSet(rows: AvailabilityRow[]): Set<string> {
   return new Set(rows.filter((r) => !r.is_available).map((r) => r.available_date));
 }

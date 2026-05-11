@@ -66,8 +66,8 @@ function revalidateBookingPaths() {
 }
 
 export async function confirmBooking(bookingId: string) {
-  const { supabase, allowed, message } = await assertCanManagePendingBooking(bookingId);
-  if (!allowed || !supabase) return { ok: false as const, message: message ?? 'Unauthorized' };
+  const { supabase, allowed, message, booking } = await assertCanManagePendingBooking(bookingId);
+  if (!allowed || !supabase || !booking) return { ok: false as const, message: message ?? 'Unauthorized' };
 
   const { error } = await supabase
     .from('bookings')
@@ -76,6 +76,18 @@ export async function confirmBooking(bookingId: string) {
     .eq('status', 'pending');
 
   if (error) return { ok: false as const, message: error.message };
+
+  const days = datesBetweenInclusive(booking.start_date, booking.end_date);
+  if (days.length > 0) {
+    await supabase.from('car_availability').upsert(
+      days.map((available_date) => ({
+        car_id: booking.car_id,
+        available_date,
+        is_available: false,
+      })),
+      { onConflict: 'car_id,available_date' },
+    );
+  }
 
   revalidateBookingPaths();
   return { ok: true as const };

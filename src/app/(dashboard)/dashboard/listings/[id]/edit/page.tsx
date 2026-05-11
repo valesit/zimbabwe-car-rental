@@ -34,9 +34,9 @@ export default async function EditListingPage({
         Edit {car.make} {car.model}
       </h1>
       <CarForm car={car} cities={cities ?? []} imageStorageOwnerId={car.owner_id} />
-      <div className="mt-12">
-        <h2 className="text-lg font-semibold text-slate-800">Availability</h2>
-        <p className="mt-1 text-sm text-gray-500">Block or open dates for this car.</p>
+      <div className="mt-12 rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm">
+        <h2 className="text-lg font-semibold text-slate-800">Block dates</h2>
+        <p className="mt-1 text-sm text-slate-600">Optional — leave open unless you need to reserve time off the calendar.</p>
         <AvailabilityEditor carId={id} />
       </div>
     </div>

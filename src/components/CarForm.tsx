@@ -19,6 +19,8 @@ interface CarFormProps {
     refundable_deposit_usd?: number;
     description: string | null;
     image_urls: string[];
+    /** Published listings appear on the site (`cars.is_active`). Preserved when updating. */
+    is_active?: boolean;
   };
   cities: { name: string }[];
   /** Used as the first path segment in Storage (owner id for RLS). */
@@ -74,7 +76,7 @@ export function CarForm({ car, cities, imageStorageOwnerId }: CarFormProps) {
       refundable_deposit_usd: Math.max(0, parseFloat(refundableDeposit) || 0),
       description: description || null,
       image_urls,
-      is_active: true,
+      is_active: car ? Boolean(car.is_active ?? true) : true,
     };
     if (car) {
       const { error: updateError } = await supabase.from('cars').update(payload).eq('id', car.id);

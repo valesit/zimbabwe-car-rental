@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { formatDailyRateUsd } from '@/lib/money';
-import { ToggleCarActiveButton } from '@/components/ToggleCarActiveButton';
+import { ListingPublishToggle } from '@/components/ListingPublishToggle';
 
 export default async function AdminCarsPage() {
   const supabase = await createClient();
@@ -16,7 +16,7 @@ export default async function AdminCarsPage() {
   return (
     <div className="mx-auto max-w-6xl">
       <h1 className="font-brand text-3xl font-semibold tracking-tight text-slate-900">Cars</h1>
-      <p className="mt-1 text-slate-600">All listings — edit, toggle visibility, or view on the site.</p>
+      <p className="mt-1 text-slate-600">All listings — publish or unpublish, edit details, block dates per car on edit.</p>
       <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-200/60">
         <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-slate-100">
@@ -26,7 +26,7 @@ export default async function AdminCarsPage() {
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Owner</th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Location</th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Rate (USD)</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Status</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Listing</th>
               <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Actions</th>
             </tr>
           </thead>
@@ -49,19 +49,22 @@ export default async function AdminCarsPage() {
                   </td>
                   <td className="px-4 py-3 text-sm">
                     {car.is_active ? (
-                      <span className="inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">Active</span>
+                      <span className="inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">
+                        Published
+                      </span>
                     ) : (
-                      <span className="inline-flex rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-700">Removed</span>
+                      <span className="inline-flex rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-700">
+                        Unpublished
+                      </span>
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <ToggleCarActiveButton carId={car.id} isActive={car.is_active} />
-                    <Link
-                      href={`/admin/cars/${car.id}/edit`}
-                      className="ml-2 text-sm text-gray-600 hover:underline"
-                    >
-                      Edit
-                    </Link>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <ListingPublishToggle carId={car.id} isPublished={car.is_active} compact />
+                      <Link href={`/admin/cars/${car.id}/edit`} className="text-sm text-gray-600 hover:underline">
+                        Edit
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               );

@@ -3,33 +3,36 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
+type EditorMode = 'block' | 'unblock';
+
+/** Owner/admin manual blocks on `car_availability`. Dates are open by default (no row = bookable except paid/booked ranges). */
 export function AvailabilityEditor({ carId }: { carId: string }) {
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
-  const [isBlocking, setIsBlocking] = useState(true);
+  const [mode, setMode] = useState<EditorMode>('block');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [entries, setEntries] = useState<{ available_date: string; is_available: boolean }[]>([]);
+  const [blockedCount, setBlockedCount] = useState<number | null>(null);
 
   const supabase = createClient();
 
-  async function loadAvailability() {
+  async function loadBlockedSummary() {
     const start = new Date();
     start.setMonth(start.getMonth() - 1);
     const end = new Date();
-    end.setMonth(end.getMonth() + 2);
+    end.setMonth(end.getMonth() + 3);
     const { data } = await supabase
       .from('car_availability')
-      .select('available_date, is_available')
+      .select('available_date')
       .eq('car_id', carId)
+      .eq('is_available', false)
       .gte('available_date', start.toISOString().slice(0, 10))
-      .lte('available_date', end.toISOString().slice(0, 10))
-      .order('available_date');
-    setEntries(data ?? []);
+      .lte('available_date', end.toISOString().slice(0, 10));
+    setBlockedCount((data ?? []).length);
   }
 
   useEffect(() => {
-    loadAvailability();
+    loadBlockedSummary();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [carId]);
 
@@ -42,11 +45,12 @@ export function AvailabilityEditor({ carId }: { carId: string }) {
     const start = new Date(from);
     const end = new Date(to);
     if (end < start) {
-      setMessage('To date must be after from date.');
+      setMessage('The end date must be on or after the start date.');
       return;
     }
     setLoading(true);
     setMessage(null);
+    const isBlocking = mode === 'block';
     const days: { car_id: string; available_date: string; is_available: boolean }[] = [];
     for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
       days.push({
@@ -63,13 +67,18 @@ export function AvailabilityEditor({ carId }: { carId: string }) {
       setMessage(error.message);
       return;
     }
-    setMessage(isBlocking ? 'Dates blocked.' : 'Dates opened.');
-    loadAvailability();
+    setMessage(isBlocking ? 'Those dates are now blocked.' : 'Block removed — those dates are open again (unless another booking covers them).');
+    loadBlockedSummary();
   }
 
   return (
-    <div className="mt-4">
-      <form onSubmit={handleSubmit} className="flex flex-wrap items-end gap-4">
+    <div className="mt-4 space-y-4">
+      <p className="text-sm text-gray-700">
+        <span className="font-medium text-gray-900">Dates are open by default.</span> Block days when the car isn’t available.
+        Paid bookings block the calendar automatically; declining a cancelled request re-opens those dates when the app clears the
+        block.
+      </p>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
         <label className="flex flex-col gap-1">
           <span className="text-sm font-medium text-gray-700">From</span>
           <input
@@ -88,30 +97,36 @@ export function AvailabilityEditor({ carId }: { carId: string }) {
             className="rounded-md border border-gray-300 px-3 py-2 text-sm"
           />
         </label>
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={isBlocking}
-            onChange={(e) => setIsBlocking(e.target.checked)}
-          />
-          <span className="text-sm">Block (uncheck to make available)</span>
-        </label>
+        <fieldset className="flex flex-col gap-2 sm:min-w-[12rem]">
+          <legend className="sr-only">Action</legend>
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-800">
+            <input
+              type="radio"
+              name="avail-mode"
+              checked={mode === 'block'}
+              onChange={() => setMode('block')}
+            />
+            Block these dates
+          </label>
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-800">
+            <input type="radio" name="avail-mode" checked={mode === 'unblock'} onChange={() => setMode('unblock')} />
+            Remove block — open these dates
+          </label>
+        </fieldset>
         <button
           type="submit"
           disabled={loading}
-          className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+          className="rounded-md bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-50"
         >
-          {loading ? 'Saving...' : 'Apply'}
+          {loading ? 'Saving…' : 'Apply'}
         </button>
       </form>
-      {message && <p className="mt-2 text-sm text-gray-600">{message}</p>}
-      {entries.length > 0 && (
-        <div className="mt-4">
-          <p className="text-sm font-medium text-gray-700">Recent availability</p>
-          <p className="text-xs text-gray-500">
-            {entries.filter((e) => !e.is_available).length} blocked, {entries.filter((e) => e.is_available).length} available
-          </p>
-        </div>
+      {message && <p className="text-sm text-gray-600">{message}</p>}
+      {blockedCount !== null && (
+        <p className="text-xs text-gray-500">
+          Manual blocks in the next few months: <span className="font-medium text-gray-700">{blockedCount}</span> day
+          {blockedCount === 1 ? '' : 's'}
+        </p>
       )}
     </div>
   );

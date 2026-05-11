@@ -89,7 +89,7 @@ export default async function AdminDashboardPage() {
       accent: 'from-sky-500 to-blue-600',
     },
     {
-      label: 'Active listings',
+      label: 'Published listings',
       value: String(activeCarsRes.count ?? 0),
       hint: `${carsRes.count ?? 0} total cars`,
       href: '/admin/cars',
