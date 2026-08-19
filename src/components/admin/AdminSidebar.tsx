@@ -23,7 +23,7 @@ export function AdminSidebar({ email }: { email?: string | null }) {
         </Link>
         <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300/80">Admin console</p>
         {email ? (
-          <p className="mt-4 truncate text-xs text-emerald-50/55" title={email}>
+          <p className="mt-4 truncate text-xs text-emerald-50/60" title={email}>
             {email}
           </p>
         ) : null}
@@ -47,8 +47,8 @@ export function AdminSidebar({ email }: { email?: string | null }) {
               href={href}
               className={`flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition ${
                 active
-                  ? 'bg-white/12 text-white shadow-sm ring-1 ring-white/10'
-                  : 'text-emerald-50/65 hover:bg-white/7 hover:text-white'
+                  ? 'bg-white/10 text-white shadow-sm ring-1 ring-white/10'
+                  : 'text-emerald-50/70 hover:bg-white/10 hover:text-white'
               }`}
             >
               <Icon className="h-[18px] w-[18px] shrink-0" />
