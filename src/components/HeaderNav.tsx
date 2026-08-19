@@ -80,8 +80,14 @@ export function HeaderNav({
             </>
           ) : (
             <>
+              <Link href="/#how-it-works" className={desktopLink}>
+                How it works
+              </Link>
+              <Link href="/support" className={desktopLink}>
+                Contact
+              </Link>
               <Link href="/login" className={desktopLink}>
-                Log in
+                Sign in
               </Link>
               <Link
                 href="/signup"
@@ -123,8 +129,14 @@ export function HeaderNav({
               </>
             ) : (
               <>
+                <Link href="/#how-it-works" className={mobileLink} onClick={() => setMenuOpen(false)}>
+                  How it works
+                </Link>
+                <Link href="/support" className={mobileLink} onClick={() => setMenuOpen(false)}>
+                  Contact
+                </Link>
                 <Link href="/login" className={mobileLink} onClick={() => setMenuOpen(false)}>
-                  Log in
+                  Sign in
                 </Link>
                 <Link
                   href="/signup"

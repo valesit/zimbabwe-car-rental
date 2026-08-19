@@ -524,7 +524,15 @@ create policy "Admins insert site promo"
 do $tenant$
 declare
   admin_uuid uuid := '8ca81e4f-e63c-469b-8853-8eca467047b8';
+  admin_exists boolean;
 begin
+  select exists(select 1 from auth.users where id = admin_uuid) into admin_exists;
+
+  if not admin_exists then
+    raise notice 'Skipping tenant seed: admin UUID % not found in auth.users', admin_uuid;
+    return;
+  end if;
+
   update public.profiles
   set role = 'admin'
   where id = admin_uuid;
@@ -546,6 +554,8 @@ begin
     (admin_uuid, 'Toyota', 'Aqua', 2022, 'hatchback', 'Harare', 50, 'Toyota Aqua — $50/day.', true, array['https://images.unsplash.com/photo-1502877338535-766e1452684a?auto=format&fit=crop&w=900&q=80']::text[]),
     (admin_uuid, 'Toyota', 'Axio', 2022, 'sedan', 'Harare', 55, 'Toyota Axio — $55/day.', true, array['https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=900&q=80']::text[]),
     (admin_uuid, 'Toyota', 'Hiace', 2021, 'van', 'Harare', 110, 'Toyota Hiace — $110/day.', true, array['https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?auto=format&fit=crop&w=900&q=80']::text[]);
+
+  raise notice 'Tenant seed applied for admin UUID %', admin_uuid;
 end $tenant$;
 
 -- verify: select id, role from public.profiles where id = '8ca81e4f-e63c-469b-8853-8eca467047b8';
