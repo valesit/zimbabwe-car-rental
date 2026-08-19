@@ -16,9 +16,13 @@ export function ToggleCarActiveButton({ carId, isActive }: { carId: string; isAc
     <button
       type="button"
       onClick={handleClick}
-      className="text-sm font-medium text-amber-600 hover:text-amber-700"
+      className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
+        isActive
+          ? 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100'
+      }`}
     >
-      {isActive ? 'Remove listing' : 'Restore'}
+      {isActive ? 'Deactivate' : 'Activate'}
     </button>
   );
 }
