@@ -66,11 +66,14 @@ export default async function CarDetailPage({
         .limit(10)
     : { data: [] };
 
+  const imageUrls: string[] = Array.isArray(car.image_urls)
+    ? (car.image_urls as string[]).filter((url): url is string => typeof url === 'string' && url.length > 0)
+    : [];
   const heroImage = carListingImageUrl({
-    image_urls: car.image_urls as string[],
+    image_urls: imageUrls,
     car_type: car.car_type,
   });
-  const extraImages = (car.image_urls ?? []).filter((url: string) => url && url !== heroImage).slice(0, 2);
+  const extraImages: string[] = imageUrls.filter((url) => url !== heroImage).slice(0, 2);
 
   return (
     <div className="min-h-[calc(100vh-4rem)] bg-[#f7f8f5]">
@@ -102,7 +105,7 @@ export default async function CarDetailPage({
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
             {extraImages.length > 0 ? (
-              extraImages.map((src, index) => (
+              extraImages.map((src: string, index: number) => (
                 <div key={src} className="relative min-h-[230px] overflow-hidden rounded-3xl bg-slate-100 shadow-[0_20px_45px_-38px_rgba(15,23,42,0.45)]">
                   <Image
                     src={src}
