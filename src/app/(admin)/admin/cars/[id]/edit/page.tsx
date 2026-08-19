@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { CarForm } from '@/components/CarForm';
+import { AvailabilityEditor } from '@/components/AvailabilityEditor';
 
 export default async function AdminEditCarPage({
   params,
@@ -10,6 +11,9 @@ export default async function AdminEditCarPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const { data: car, error } = await supabase.from('cars').select('*').eq('id', id).single();
 
   if (error || !car) notFound();
@@ -25,7 +29,7 @@ export default async function AdminEditCarPage({
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Fleet management</p>
           <h1 className="font-display mt-2 text-4xl font-medium tracking-[-0.035em] text-slate-950 sm:text-5xl">Edit {car.make} {car.model}</h1>
-          <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">Update listing details, pricing and photography. Changes appear on the public fleet immediately.</p>
+          <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">Update listing details, pricing, photography and bookable dates from one place.</p>
         </div>
         <Link
           href={`/listings/${car.id}`}
@@ -39,9 +43,13 @@ export default async function AdminEditCarPage({
         <CarForm
           car={car}
           cities={cities ?? []}
-          imageStorageOwnerId={car.owner_id}
+          imageStorageOwnerId={user?.id ?? car.owner_id}
           returnTo="/admin/cars"
         />
+      </section>
+
+      <section className="mt-7 rounded-3xl border border-slate-200/70 bg-white p-6 shadow-[0_20px_50px_-40px_rgba(15,23,42,0.5)] sm:p-8">
+        <AvailabilityEditor carId={car.id} />
       </section>
     </div>
   );
