@@ -6,51 +6,62 @@ import { usePathname } from 'next/navigation';
 const nav = [
   { href: '/admin', label: 'Overview', icon: IconChart },
   { href: '/admin/bookings', label: 'Bookings', icon: IconClipboard },
-  { href: '/admin/cars', label: 'Cars', icon: IconCar },
-  { href: '/admin/users', label: 'Users', icon: IconUsers },
+  { href: '/admin/cars', label: 'Fleet', icon: IconCar },
+  { href: '/admin/users', label: 'Customers', icon: IconUsers },
   { href: '/admin/support', label: 'Support', icon: IconLifebuoy },
-  { href: '/admin/promo', label: 'Promo banner', icon: IconMegaphone },
+  { href: '/admin/promo', label: 'Site banner', icon: IconMegaphone },
 ];
 
 export function AdminSidebar({ email }: { email?: string | null }) {
   const pathname = usePathname();
 
   return (
-    <aside className="flex w-64 shrink-0 flex-col border-r border-slate-200 bg-gradient-to-b from-slate-50 to-white text-slate-800 shadow-sm">
-      <div className="border-b border-slate-200 px-5 py-6">
-        <Link href="/" className="font-brand text-lg font-semibold tracking-tight text-slate-900">
+    <aside className="flex w-64 shrink-0 flex-col bg-[#10261f] text-white shadow-[12px_0_40px_-28px_rgba(2,44,34,0.7)] lg:w-72">
+      <div className="border-b border-white/10 px-5 py-7 lg:px-6">
+        <Link href="/" className="font-display text-xl font-medium tracking-[-0.02em] text-white">
           Rental Car Connect
         </Link>
-        <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-emerald-700">Admin</p>
-        {email && (
-          <p className="mt-3 truncate text-xs text-slate-600" title={email}>
+        <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-300/80">Admin console</p>
+        {email ? (
+          <p className="mt-4 truncate text-xs text-emerald-50/55" title={email}>
             {email}
           </p>
-        )}
+        ) : null}
       </div>
-      <nav className="flex flex-1 flex-col gap-0.5 p-3">
+
+      <div className="p-4">
+        <Link
+          href="/admin/cars/new"
+          className="flex items-center justify-center gap-2 rounded-xl bg-white px-4 py-3 text-sm font-semibold text-emerald-950 shadow-sm transition hover:bg-emerald-50"
+        >
+          <span className="text-lg leading-none">+</span> Add new car
+        </Link>
+      </div>
+
+      <nav className="flex flex-1 flex-col gap-1 px-3 pb-4 lg:px-4">
         {nav.map(({ href, label, icon: Icon }) => {
           const active = href === '/admin' ? pathname === '/admin' : pathname.startsWith(href);
           return (
             <Link
               key={href}
               href={href}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
+              className={`flex items-center gap-3 rounded-xl px-3.5 py-3 text-sm font-medium transition ${
                 active
-                  ? 'bg-emerald-100 text-emerald-900 shadow-sm ring-1 ring-emerald-200/80'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                  ? 'bg-white/12 text-white shadow-sm ring-1 ring-white/10'
+                  : 'text-emerald-50/65 hover:bg-white/7 hover:text-white'
               }`}
             >
-              <Icon className="h-5 w-5 shrink-0 opacity-90" />
+              <Icon className="h-[18px] w-[18px] shrink-0" />
               {label}
             </Link>
           );
         })}
       </nav>
-      <div className="border-t border-slate-200 p-4">
+
+      <div className="border-t border-white/10 p-4 lg:p-5">
         <Link
           href="/"
-          className="flex items-center justify-center rounded-xl border border-slate-200 bg-white py-2.5 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+          className="flex items-center justify-center rounded-xl border border-white/10 bg-white/5 py-2.5 text-sm font-medium text-emerald-50/75 transition hover:bg-white/10 hover:text-white"
         >
           ← Back to site
         </Link>
@@ -61,58 +72,48 @@ export function AdminSidebar({ email }: { email?: string | null }) {
 
 function IconClipboard({ className }: { className?: string }) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-      />
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M9 5H7a2 2 0 0 0-2 2v12h14V7a2 2 0 0 0-2-2h-2M9 5a3 3 0 0 1 6 0M9 5h6m-7 6h8m-8 4h5" />
     </svg>
   );
 }
 
 function IconChart({ className }: { className?: string }) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M4 19V9m5 10V5m5 14v-7m5 7V3" />
     </svg>
   );
 }
 
 function IconCar({ className }: { className?: string }) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={1.5}
-        d="M8 17h8m-8 0a2 2 0 01-2-2V9h12v6a2 2 0 01-2 2m-8 0h8m-9-8V7a1 1 0 011-1h8a1 1 0 011 1v2M7 15h.01M17 15h.01"
-      />
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M5 16h14M6 16v2m12-2v2M4 12l2-5h12l2 5v4H4v-4Zm3 1h.01M17 13h.01" />
     </svg>
   );
 }
 
 function IconUsers({ className }: { className?: string }) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M16 20v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1m7-9a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm9 9v-1a4 4 0 0 0-3-3.87M15 3.13a4 4 0 0 1 0 7.75" />
     </svg>
   );
 }
 
 function IconLifebuoy({ className }: { className?: string }) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0-5a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-6.36 2.36 3.53-3.53m5.66-5.66 3.53-3.53m0 12.72-3.53-3.53M9.17 9.17 5.64 5.64" />
     </svg>
   );
 }
 
 function IconMegaphone({ className }: { className?: string }) {
   return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.416c2.012 0 3.86.742 5.208 1.98M17 8l2.564 2.564M19 21v-2m0-4v-2m-4-4h2m-6 0h2" />
+    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M4 11v2a2 2 0 0 0 2 2h2l2 5h3l-1-5 7-3V7L8 4v5H6a2 2 0 0 0-2 2Zm15-1h2" />
     </svg>
   );
 }
