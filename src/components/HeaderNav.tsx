@@ -22,23 +22,23 @@ export function HeaderNav({
   }, [menuOpen]);
 
   const mobileLink =
-    'block rounded-xl px-3 py-3 text-base font-medium text-slate-700 transition hover:bg-emerald-50 hover:text-emerald-800';
+    'block rounded-xl px-3 py-3 text-base font-medium tracking-[-0.01em] text-[#31423b] transition-colors hover:bg-emerald-50 hover:text-emerald-800';
   const desktopLink =
-    'text-sm font-medium text-slate-600 transition hover:text-emerald-700 whitespace-nowrap';
+    'whitespace-nowrap text-[15px] font-medium tracking-[-0.015em] text-[#34443e] transition-colors duration-200 hover:text-emerald-800';
 
   return (
     <div className="flex flex-col">
       <div className="flex min-h-[4.5rem] items-center justify-between gap-3 py-2">
         <Link
           href="/"
-          className="font-brand min-w-0 flex-1 text-lg font-semibold leading-snug tracking-[-0.03em] text-emerald-800 sm:flex-none sm:text-xl sm:leading-normal"
+          className="font-brand min-w-0 flex-1 text-lg font-semibold leading-snug tracking-[-0.035em] text-[#24614c] transition-colors hover:text-emerald-800 sm:flex-none sm:text-xl sm:leading-normal"
         >
           Rental Car Connect
         </Link>
 
         <button
           type="button"
-          className="inline-flex shrink-0 items-center justify-center rounded-xl border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 md:hidden"
+          className="inline-flex shrink-0 items-center justify-center rounded-xl border border-slate-200 p-2 text-[#42534c] transition hover:bg-slate-50 hover:text-slate-950 md:hidden"
           aria-expanded={menuOpen}
           aria-controls="site-mobile-nav"
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
@@ -55,7 +55,7 @@ export function HeaderNav({
           )}
         </button>
 
-        <div className="hidden items-center gap-7 md:flex">
+        <div className="hidden items-center gap-8 md:flex">
           <Link href="/listings" className={desktopLink}>
             Browse cars
           </Link>
@@ -73,7 +73,7 @@ export function HeaderNav({
               {isAdmin && (
                 <Link
                   href="/admin"
-                  className="text-sm font-semibold text-amber-700 transition hover:text-amber-800 whitespace-nowrap"
+                  className="whitespace-nowrap text-[15px] font-semibold tracking-[-0.015em] text-amber-700 transition-colors hover:text-amber-800"
                 >
                   Admin
                 </Link>
@@ -86,12 +86,15 @@ export function HeaderNav({
             </>
           ) : (
             <>
-              <Link href="/login" className={desktopLink}>
+              <Link
+                href="/login"
+                className="whitespace-nowrap text-[15px] font-semibold tracking-[-0.015em] text-[#26362f] transition-colors duration-200 hover:text-emerald-800"
+              >
                 Sign in
               </Link>
               <Link
                 href="/signup"
-                className="rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-800 whitespace-nowrap"
+                className="whitespace-nowrap rounded-xl bg-[#2f765c] px-4 py-2.5 text-sm font-semibold tracking-[-0.01em] text-white shadow-[0_8px_20px_-12px_rgba(20,83,45,0.55)] transition hover:bg-[#28674f]"
               >
                 Sign up
               </Link>
@@ -135,12 +138,12 @@ export function HeaderNav({
               </>
             ) : (
               <>
-                <Link href="/login" className={mobileLink} onClick={() => setMenuOpen(false)}>
+                <Link href="/login" className={mobileLink + ' font-semibold text-[#26362f]'} onClick={() => setMenuOpen(false)}>
                   Sign in
                 </Link>
                 <Link
                   href="/signup"
-                  className="mt-2 block rounded-xl bg-emerald-700 px-4 py-3 text-center text-base font-semibold text-white shadow-sm transition hover:bg-emerald-800"
+                  className="mt-2 block rounded-xl bg-[#2f765c] px-4 py-3 text-center text-base font-semibold text-white shadow-sm transition hover:bg-[#28674f]"
                   onClick={() => setMenuOpen(false)}
                 >
                   Sign up
