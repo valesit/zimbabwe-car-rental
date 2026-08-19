@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import { CAR_TYPES, CAR_TYPE_LABELS } from '@/types/database';
+import { CAR_TYPES, CAR_TYPE_LABELS, getCarTypeLabel } from '@/types/database';
 
 const DEFAULT_CITY_NAMES = ['Harare'];
 
@@ -109,7 +109,7 @@ export function ListingsFilters({ start = '', end = '', city = '', type = '', ci
           ) : null}
           {carType ? (
             <span className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600">
-              {CAR_TYPE_LABELS[carType as keyof typeof CAR_TYPE_LABELS] ?? carType}
+              {getCarTypeLabel(carType)}
             </span>
           ) : null}
           <Link href="/listings" className="ml-auto text-xs font-semibold text-emerald-800 transition hover:text-emerald-950">
