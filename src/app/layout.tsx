@@ -11,19 +11,13 @@ const jakarta = Plus_Jakarta_Sans({
 
 export const metadata: Metadata = {
   title: "Rental Car Connect",
-  description: "Rent a car in Harare. Browse by dates and vehicle type.",
+  description: "Simple, reliable car rental in Harare. Browse available vehicles and manage your trips in one place.",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={jakarta.variable}>
-      <body className="min-h-screen bg-slate-50 antialiased font-sans text-slate-900">
-        {children}
-      </body>
+      <body className="min-h-screen bg-[#f6f8f5] antialiased text-slate-900">{children}</body>
     </html>
   );
 }

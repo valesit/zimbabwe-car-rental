@@ -26,52 +26,39 @@ export function SearchForm({ cities }: { cities?: { name: string }[] }) {
     router.push(`/listings?${params.toString()}`);
   }
 
-  const fieldClass =
-    'w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm shadow-sm transition focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 sm:px-4';
+  const fieldClass = 'mt-2 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-800 outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10';
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="grid grid-cols-1 gap-4 rounded-2xl border border-gray-200/80 bg-white p-4 shadow-lg ring-1 ring-gray-900/5 sm:grid-cols-2 sm:gap-4 sm:p-6 lg:grid-cols-12 lg:items-end"
-    >
-      <label className="flex flex-col gap-1.5 sm:col-span-1 lg:col-span-2">
-        <span className="text-sm font-semibold text-gray-700">Start date</span>
+    <form onSubmit={handleSubmit} className="grid gap-3 rounded-[1.35rem] border border-white/80 bg-white/95 p-4 shadow-[0_18px_45px_rgba(15,23,42,0.13)] backdrop-blur sm:grid-cols-2 sm:p-5 lg:grid-cols-[1fr_1fr_.9fr_.9fr_auto] lg:items-end">
+      <label className="block">
+        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">Start date</span>
         <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={fieldClass} />
       </label>
-      <label className="flex flex-col gap-1.5 sm:col-span-1 lg:col-span-2">
-        <span className="text-sm font-semibold text-gray-700">End date</span>
+      <label className="block">
+        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">End date</span>
         <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={fieldClass} />
       </label>
-      <label className="flex flex-col gap-1.5 sm:col-span-1 lg:col-span-2">
-        <span className="text-sm font-semibold text-gray-700">City</span>
+      <label className="block">
+        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">City</span>
         <select value={city} onChange={(e) => setCity(e.target.value)} className={fieldClass}>
-          <option value="">Any</option>
-          {cityOptions.map((c) => (
-            <option key={typeof c === 'string' ? c : c.name} value={typeof c === 'string' ? c : c.name}>
-              {typeof c === 'string' ? c : c.name}
-            </option>
-          ))}
+          <option value="">Any city</option>
+          {cityOptions.map((c) => {
+            const value = typeof c === 'string' ? c : c.name;
+            return <option key={value} value={value}>{value}</option>;
+          })}
         </select>
       </label>
-      <label className="flex flex-col gap-1.5 sm:col-span-1 lg:col-span-2">
-        <span className="text-sm font-semibold text-gray-700">Car type</span>
+      <label className="block">
+        <span className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-500">Car type</span>
         <select value={carType} onChange={(e) => setCarType(e.target.value)} className={fieldClass}>
-          <option value="">Any</option>
-          {CAR_TYPES.map((t) => (
-            <option key={t} value={t}>
-              {CAR_TYPE_LABELS[t]}
-            </option>
-          ))}
+          <option value="">Any type</option>
+          {CAR_TYPES.map((t) => <option key={t} value={t}>{CAR_TYPE_LABELS[t]}</option>)}
         </select>
       </label>
-      <div className="flex items-stretch sm:col-span-2 lg:col-span-4 lg:items-end">
-        <button
-          type="submit"
-          className="w-full rounded-lg bg-teal-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 lg:w-auto lg:min-w-[8.5rem] lg:py-2.5"
-        >
-          Search
-        </button>
-      </div>
+      <button type="submit" className="primary-button h-[46px] whitespace-nowrap sm:col-span-2 lg:col-span-1">
+        Search cars
+        <svg className="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m21 21-4.35-4.35m1.35-5.65a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" /></svg>
+      </button>
     </form>
   );
 }

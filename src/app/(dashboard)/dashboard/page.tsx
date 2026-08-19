@@ -1,228 +1,124 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import { formatDailyRateUsd } from '@/lib/money';
-import { BookingRowActions } from '@/components/admin/BookingRowActions';
+import { CarCard } from '@/components/CarCard';
+import { carListingImageUrl } from '@/lib/carImages';
 
 function statusBadge(status: string) {
   const map: Record<string, string> = {
-    pending: 'bg-amber-100 text-amber-900 ring-amber-200',
-    confirmed: 'bg-sky-100 text-sky-900 ring-sky-200',
-    completed: 'bg-emerald-100 text-emerald-900 ring-emerald-200',
-    cancelled: 'bg-slate-100 text-slate-700 ring-slate-200',
+    pending: 'bg-amber-50 text-amber-800 ring-amber-200',
+    confirmed: 'bg-emerald-50 text-emerald-800 ring-emerald-200',
+    completed: 'bg-slate-100 text-slate-700 ring-slate-200',
+    cancelled: 'bg-rose-50 text-rose-700 ring-rose-200',
   };
-  return map[status] ?? 'bg-slate-100 text-slate-800 ring-slate-200';
+  return map[status] ?? 'bg-slate-100 text-slate-700 ring-slate-200';
 }
 
 export default async function DashboardPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
-
-  const { count: renterBookingCount } = await supabase
-    .from('bookings')
-    .select('*', { count: 'exact', head: true })
-    .eq('renter_id', user.id);
 
   const { data: bookings } = await supabase
     .from('bookings')
-    .select(
-      `
-      id, start_date, end_date, status, total_amount_usd, car_id,
-      cars (id, make, model, year, image_urls, daily_rate_usd, location_city, car_type)
-    `,
-    )
+    .select(`id, start_date, end_date, status, total_amount_usd, car_id, cars (id, make, model, year, image_urls, daily_rate_usd, location_city, car_type)`)
     .eq('renter_id', user.id)
-    .order('created_at', { ascending: false })
-    .limit(6);
+    .order('created_at', { ascending: false });
 
-  const { data: ownedCars } = await supabase.from('cars').select('id').eq('owner_id', user.id);
-  const ownedCarIds = (ownedCars ?? []).map((c) => c.id);
-
-  const { data: ownerRequests } =
-    ownedCarIds.length > 0
-      ? await supabase
-          .from('bookings')
-          .select(
-            `
-      id,
-      start_date,
-      end_date,
-      status,
-      total_amount_usd,
-      car_id,
-      cars ( id, make, model ),
-      profiles ( display_name )
-    `,
-          )
-          .in('car_id', ownedCarIds)
-          .eq('status', 'pending')
-          .order('created_at', { ascending: false })
-          .limit(8)
-      : { data: [] };
-
-  const { count: carCount } = await supabase
+  const { data: recommendedCars } = await supabase
     .from('cars')
-    .select('*', { count: 'exact', head: true })
-    .eq('owner_id', user.id);
+    .select('id, make, model, year, car_type, location_city, daily_rate_usd, image_urls, description')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+    .limit(3);
+
+  const rows = bookings ?? [];
+  const today = new Date().toISOString().slice(0, 10);
+  const upcoming = rows.filter((b) => ['pending', 'confirmed'].includes(b.status) && b.end_date >= today);
+  const completed = rows.filter((b) => b.status === 'completed');
+  const totalSpent = completed.reduce((sum, b) => sum + Number(b.total_amount_usd ?? 0), 0);
+  const recent = upcoming.length ? upcoming.slice(0, 2) : rows.slice(0, 2);
+  const displayName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'there';
 
   return (
     <div className="mx-auto max-w-6xl">
-      <div>
-        <h1 className="font-brand text-3xl font-semibold tracking-tight text-slate-900">Overview</h1>
-        <p className="mt-1 text-slate-700">
-          Trips you’ve booked and cars you host — same place, clear next steps.
-        </p>
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="eyebrow">Your rentals</p>
+          <h1 className="font-display mt-2 text-4xl tracking-tight text-slate-900">Welcome back, {displayName}</h1>
+          <p className="mt-2 text-slate-500">Everything you need for your current and past car rentals.</p>
+        </div>
+        <Link href="/listings" className="primary-button">Find a car <span className="ml-2">→</span></Link>
       </div>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm ring-1 ring-slate-100">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">As a renter</p>
-          <p className="mt-2 font-brand text-2xl font-semibold text-slate-900">{renterBookingCount ?? 0}</p>
-          <p className="mt-1 text-sm font-medium text-slate-700">Total trips you’ve requested</p>
-        </div>
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm ring-1 ring-slate-100">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">As a host</p>
-          <p className="mt-2 font-brand text-2xl font-semibold text-slate-900">{carCount ?? 0}</p>
-          <p className="mt-1 text-sm font-medium text-slate-700">Cars you list</p>
-          <Link href="/dashboard/listings" className="mt-3 inline-block text-sm font-semibold text-emerald-700 hover:underline">
-            Manage cars →
+      <div className="mt-9 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          ['Upcoming bookings', String(upcoming.length), 'View bookings', '/dashboard/bookings'],
+          ['Completed trips', String(completed.length), 'View history', '/dashboard/bookings'],
+          ['Total spent', formatDailyRateUsd(totalSpent), 'Completed rentals', '/dashboard/bookings'],
+          ['All bookings', String(rows.length), 'Rental history', '/dashboard/bookings'],
+        ].map(([label, value, hint, href]) => (
+          <Link key={label} href={href} className="surface-card group p-5 transition hover:-translate-y-0.5 hover:border-emerald-200">
+            <p className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500">{label}</p>
+            <p className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">{value}</p>
+            <p className="mt-2 text-sm font-medium text-emerald-700">{hint} <span className="transition group-hover:translate-x-0.5">→</span></p>
           </Link>
-        </div>
-        <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm ring-1 ring-slate-100">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Needs action</p>
-          <p className="mt-2 font-brand text-2xl font-semibold text-amber-800">
-            {(ownerRequests ?? []).length}
-          </p>
-          <p className="mt-1 text-sm font-medium text-slate-700">Pending requests for your cars</p>
-        </div>
+        ))}
       </div>
 
-      {(ownerRequests ?? []).length > 0 && (
-        <section className="mt-10">
-          <div className="flex flex-wrap items-end justify-between gap-2">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900">Requests for your cars</h2>
-              <p className="mt-0.5 text-sm text-slate-700">Approve to confirm the trip, or decline to release those dates.</p>
-            </div>
+      <div className="mt-8 grid gap-6 lg:grid-cols-[1.65fr_.85fr]">
+        <section className="surface-card p-6 sm:p-7">
+          <div className="flex items-center justify-between gap-4">
+            <div><p className="eyebrow">Next up</p><h2 className="mt-1 text-xl font-semibold text-slate-900">Your bookings</h2></div>
+            <Link href="/dashboard/bookings" className="text-sm font-semibold text-emerald-700">View all →</Link>
           </div>
-          <ul className="mt-4 space-y-3">
-            {(ownerRequests ?? []).map((row) => {
-              const carRaw = row.cars;
-              const car = (Array.isArray(carRaw) ? carRaw[0] : carRaw) as {
-                make?: string;
-                model?: string;
-              } | null;
-              const renterRaw = row.profiles;
-              const renter = (Array.isArray(renterRaw) ? renterRaw[0] : renterRaw) as {
-                display_name?: string | null;
-              } | null;
+
+          <div className="mt-6 space-y-3">
+            {recent.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 px-6 py-12 text-center">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M5 16h14M6 16l1 2h10l1-2M6 13l2-5h8l2 5M5 13h14v3H5v-3Z" /></svg>
+                </div>
+                <p className="mt-4 font-semibold text-slate-800">No bookings yet</p>
+                <p className="mt-1 text-sm text-slate-500">When you book a car, your trip details will appear here.</p>
+                <Link href="/listings" className="mt-5 inline-flex text-sm font-semibold text-emerald-700">Browse cars →</Link>
+              </div>
+            ) : recent.map((booking) => {
+              const rawCar = booking.cars;
+              const car = (Array.isArray(rawCar) ? rawCar[0] : rawCar) as { id?: string; make?: string; model?: string; year?: number; image_urls?: string[]; daily_rate_usd?: number; location_city?: string; car_type?: string } | null;
+              const imageUrl = car ? carListingImageUrl({ image_urls: car.image_urls, car_type: car.car_type ?? 'other' }) : null;
               return (
-                <li
-                  key={row.id}
-                  className="flex flex-col gap-3 rounded-2xl border border-amber-100 bg-amber-50/40 p-4 shadow-sm ring-1 ring-amber-100/80 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div>
-                    <p className="font-semibold text-slate-900">
-                      {car?.make} {car?.model}
-                    </p>
-                    <p className="mt-0.5 text-sm text-slate-700">
-                      {row.start_date} → {row.end_date}
-                      {renter?.display_name ? ` · ${renter.display_name}` : ''}
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-emerald-800">
-                      {formatDailyRateUsd(Number(row.total_amount_usd))}
-                    </p>
+                <Link href={`/dashboard/bookings/${booking.id}`} key={booking.id} className="flex flex-col gap-4 rounded-2xl border border-slate-100 bg-slate-50/50 p-4 transition hover:border-emerald-100 hover:bg-emerald-50/30 sm:flex-row sm:items-center">
+                  {imageUrl && <div className="relative h-24 w-full shrink-0 overflow-hidden rounded-xl bg-slate-100 sm:w-32"><Image src={imageUrl} alt={`${car?.make ?? ''} ${car?.model ?? ''}`} fill className="object-cover" sizes="128px" /></div>}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div><p className="font-semibold text-slate-900">{car?.make} {car?.model} <span className="font-normal text-slate-500">({car?.year})</span></p><p className="mt-1 text-sm text-slate-500">{booking.start_date} → {booking.end_date} · {car?.location_city}</p></div>
+                      <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold capitalize ring-1 ${statusBadge(booking.status)}`}>{booking.status}</span>
+                    </div>
+                    <p className="mt-3 text-sm font-semibold text-emerald-800">{formatDailyRateUsd(Number(booking.total_amount_usd))}</p>
                   </div>
-                  <BookingRowActions bookingId={row.id} status={row.status} />
-                </li>
+                </Link>
               );
             })}
-          </ul>
+          </div>
+        </section>
+
+        <aside className="relative overflow-hidden rounded-[1.4rem] bg-emerald-900 p-7 text-white shadow-[0_18px_40px_rgba(21,94,66,0.18)]">
+          <div className="absolute -bottom-20 -right-16 h-64 w-64 rounded-full bg-emerald-500/20" />
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-200">Need a car soon?</p>
+          <h2 className="font-display mt-3 text-3xl leading-tight">Find the right car for your next trip.</h2>
+          <p className="mt-4 text-sm leading-6 text-emerald-100/80">Browse available vehicles, compare rates, and choose dates that work for you.</p>
+          <Link href="/listings" className="relative mt-7 inline-flex rounded-xl bg-white px-4 py-3 text-sm font-semibold text-emerald-900 shadow-sm">Browse cars →</Link>
+        </aside>
+      </div>
+
+      {(recommendedCars ?? []).length > 0 && (
+        <section className="mt-12">
+          <div className="flex items-end justify-between gap-4"><div><p className="eyebrow">For your next trip</p><h2 className="font-display mt-2 text-3xl text-slate-900">Recommended for you</h2></div><Link href="/listings" className="text-sm font-semibold text-emerald-700">View all cars →</Link></div>
+          <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{(recommendedCars ?? []).map((car) => <CarCard key={car.id} car={car} />)}</div>
         </section>
       )}
-
-      <div className="mt-10 grid gap-8 lg:grid-cols-2">
-        <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="text-lg font-semibold text-slate-900">My bookings</h2>
-            <Link href="/dashboard/bookings" className="text-sm font-semibold text-emerald-700 hover:underline">
-              View all
-            </Link>
-          </div>
-          <ul className="mt-4 space-y-3">
-            {(bookings ?? []).length === 0 ? (
-              <li className="rounded-xl border border-dashed border-slate-200 py-8 text-center text-sm text-slate-600">
-                No bookings yet.{' '}
-                <Link href="/listings" className="font-semibold text-emerald-700 hover:underline">
-                  Browse cars
-                </Link>
-              </li>
-            ) : (
-              (bookings ?? []).map((b) => {
-                const car = Array.isArray(b.cars) ? b.cars[0] : b.cars;
-                const c = car as { make?: string; model?: string; year?: number } | null;
-                return (
-                  <li
-                    key={b.id}
-                    className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-100 bg-slate-50/50 p-4"
-                  >
-                    <div>
-                      <p className="font-semibold text-slate-900">
-                        {c?.make} {c?.model}
-                      </p>
-                      <p className="mt-0.5 text-sm text-slate-700">
-                        {b.start_date} – {b.end_date}
-                      </p>
-                      <span
-                        className={`mt-2 inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ring-1 ${statusBadge(b.status)}`}
-                      >
-                        {b.status}
-                      </span>
-                    </div>
-                    <Link
-                      href={`/dashboard/bookings/${b.id}`}
-                      className="shrink-0 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-emerald-800 shadow-sm hover:bg-emerald-50"
-                    >
-                      View
-                    </Link>
-                  </li>
-                );
-              })
-            )}
-          </ul>
-        </section>
-
-        <section className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="text-lg font-semibold text-slate-900">My cars</h2>
-            <Link
-              href="/dashboard/listings/new"
-              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
-            >
-              Add car
-            </Link>
-          </div>
-          <div className="mt-4">
-            <Link
-              href="/dashboard/listings"
-              className="text-sm font-semibold text-emerald-700 hover:underline"
-            >
-              Manage all listings →
-            </Link>
-          </div>
-          <p className="mt-4 text-sm text-slate-600">
-            Set availability, photos, and pricing from the editor. Pending booking requests appear above.
-          </p>
-        </section>
-      </div>
-
-      <div className="mt-8">
-        <Link href="/support" className="text-sm font-semibold text-slate-700 underline decoration-slate-300 hover:text-emerald-800">
-          Support tickets
-        </Link>
-      </div>
     </div>
   );
 }

@@ -10,12 +10,10 @@ export async function Header() {
     ? await supabase.from('profiles').select('role, is_verified, is_premium').eq('id', user.id).single()
     : { data: null };
 
-  const isAdmin = profile?.role === 'admin';
-
   return (
-    <header className="border-b border-gray-200/80 bg-white/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-white/80">
-      <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <HeaderNav isLoggedIn={Boolean(user)} isAdmin={isAdmin} />
+    <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/90 backdrop-blur-xl">
+      <nav className="page-shell">
+        <HeaderNav isLoggedIn={Boolean(user)} isAdmin={profile?.role === 'admin'} />
       </nav>
     </header>
   );
