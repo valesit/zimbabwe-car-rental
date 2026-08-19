@@ -8,19 +8,12 @@ import { hasOpenDayInHorizon, horizonEndIso } from '@/lib/availability';
 
 export const revalidate = 60;
 
-const HERO_IMAGES = [
-  'https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600',
-  'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?w=600',
-  'https://images.unsplash.com/photo-1502877338535-766e1452684a?w=600',
-];
-
 export default async function HomePage() {
   const supabase = await createClient();
   const { data: cities } = await supabase.from('cities').select('name').order('name');
 
   const today = new Date().toISOString().slice(0, 10);
   const horizonEnd = horizonEndIso(today);
-
   const { data: candidateCars } = await supabase
     .from('cars')
     .select('id, make, model, year, car_type, location_city, daily_rate_usd, image_urls, description')
@@ -28,9 +21,9 @@ export default async function HomePage() {
     .order('created_at', { ascending: false })
     .limit(48);
 
-  const ids = (candidateCars ?? []).map((c) => c.id);
-
+  const ids = (candidateCars ?? []).map((car) => car.id);
   let featuredCars: NonNullable<typeof candidateCars> = [];
+
   if (ids.length > 0) {
     const { data: blockedRows } = await supabase
       .from('car_availability')
@@ -47,154 +40,117 @@ export default async function HomePage() {
     }
 
     featuredCars = (candidateCars ?? [])
-      .filter((car) =>
-        hasOpenDayInHorizon(today, horizonEnd, blockedByCar.get(car.id) ?? new Set())
-      )
-      .slice(0, 6);
+      .filter((car) => hasOpenDayInHorizon(today, horizonEnd, blockedByCar.get(car.id) ?? new Set()))
+      .slice(0, 4);
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)]">
+    <div className="bg-[#f7f9f6]">
       <HomePromoBanner />
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-teal-50 via-white to-slate-50 px-4 pt-10 pb-16 sm:px-6 sm:pt-16 sm:pb-20 lg:px-8">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%230d9488\' fill-opacity=\'0.04\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-60" aria-hidden="true" />
-        <div className="relative mx-auto max-w-4xl text-center">
-          <h1 className="font-brand text-3xl font-medium tracking-tight text-slate-800 sm:text-4xl md:text-5xl lg:text-6xl">
-            Rent a car in <span className="text-teal-600">Harare</span>
-          </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-base text-gray-600 sm:mt-5 sm:text-lg lg:text-xl">
-            Find and book cars from local owners. Harare today — more cities coming soon.
-          </p>
-          <div className="mx-auto mt-10 max-w-3xl">
-            <SearchForm cities={cities ?? undefined} />
-          </div>
-        </div>
-        {/* Hero image strip */}
-        <div className="relative mx-auto mt-14 max-w-5xl">
-          <div className="flex gap-4 justify-center flex-wrap px-2">
-            {HERO_IMAGES.map((src, i) => (
-              <div
-                key={i}
-                className="relative h-36 w-full max-w-[20rem] overflow-hidden rounded-2xl shadow-lg ring-1 ring-gray-900/5 sm:h-40 sm:w-64 sm:max-w-none"
-              >
-                <Image
-                  src={src}
-                  alt=""
-                  fill
-                  className="object-cover"
-                  sizes="256px"
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* Featured listings — book in one tap */}
-      {featuredCars && featuredCars.length > 0 ? (
-        <section className="border-t border-gray-200/80 bg-white px-4 py-14 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-7xl">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <h2 className="font-brand text-2xl font-medium text-slate-800 sm:text-3xl">
-                  <span className="text-emerald-600">Cars you can book</span> now
-                </h2>
-                <p className="mt-2 max-w-xl text-gray-600">
-                  Tap a car to see photos and lock in your dates — no need to open the full catalog first.
-                </p>
-              </div>
-              <Link
-                href="/listings"
-                className="shrink-0 text-sm font-semibold text-teal-700 underline-offset-4 hover:text-teal-800 hover:underline"
-              >
-                Browse all listings →
-              </Link>
-            </div>
-            <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {featuredCars.map((car) => (
-                <CarCard key={car.id} car={car} />
+      <section className="relative overflow-hidden bg-[#fbfcf9]">
+        <div className="absolute inset-y-0 right-0 hidden w-[53%] lg:block">
+          <Image
+            src="https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=1800&q=88"
+            alt="Premium rental car on the road"
+            fill
+            priority
+            className="object-cover"
+            sizes="53vw"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#fbfcf9] via-[#fbfcf9]/35 to-transparent" />
+        </div>
+
+        <div className="page-shell relative grid min-h-[590px] items-center py-16 lg:grid-cols-2 lg:py-20">
+          <div className="relative z-10 max-w-xl pb-32 lg:pb-20">
+            <p className="eyebrow">Car rental, made personal</p>
+            <h1 className="font-display mt-5 text-5xl leading-[1.04] tracking-[-0.035em] text-slate-900 sm:text-6xl lg:text-7xl">
+              Your journey,<br /><span className="text-emerald-700">our cars.</span>
+            </h1>
+            <p className="mt-6 max-w-md text-base leading-7 text-slate-600 sm:text-lg">
+              Find and book reliable cars in Harare with transparent pricing, flexible dates, and a simple rental experience from start to finish.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm font-medium text-slate-600">
+              {['Verified vehicles', 'Flexible dates', 'Local support'].map((item) => (
+                <span key={item} className="inline-flex items-center gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                    <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m5 12 4 4L19 6" /></svg>
+                  </span>
+                  {item}
+                </span>
               ))}
             </div>
           </div>
-        </section>
-      ) : null}
 
-      {/* Features / Why use us - with images */}
-      <section className="border-t border-gray-200/80 bg-white px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-7xl">
-          <h2 className="font-brand text-center text-2xl font-medium text-slate-800 sm:text-3xl">
-            Why <span className="text-emerald-600">book with us</span>
-          </h2>
-          <div className="mt-12 grid gap-8 sm:grid-cols-3">
-            <div className="overflow-hidden rounded-2xl border border-gray-100 bg-gray-50/50 shadow-sm transition hover:border-teal-100 hover:shadow-md">
-              <div className="relative h-36 w-full">
-                <Image
-                  src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=600"
-                  alt="Pickup truck"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 640px) 100vw, 33vw"
-                />
-              </div>
-              <div className="p-6 text-center">
-                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-teal-100 text-teal-600">
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                </div>
-                <h3 className="mt-3 font-semibold text-slate-800">Flexible dates</h3>
-                <p className="mt-2 text-sm text-gray-600">Search by your trip dates and see only cars available when you need them.</p>
-              </div>
-            </div>
-            <div className="overflow-hidden rounded-2xl border border-gray-100 bg-gray-50/50 shadow-sm transition hover:border-teal-100 hover:shadow-md">
-              <div className="relative h-36 w-full">
-                <Image
-                  src="https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=600"
-                  alt="Car in city"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 640px) 100vw, 33vw"
-                />
-              </div>
-              <div className="p-6 text-center">
-                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-teal-100 text-teal-600">
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                </div>
-                <h3 className="mt-3 font-semibold text-slate-800">Harare-focused</h3>
-                <p className="mt-2 text-sm text-gray-600">We currently serve Harare only. More cities will be added as we grow.</p>
-              </div>
-            </div>
-            <div className="overflow-hidden rounded-2xl border border-gray-100 bg-gray-50/50 shadow-sm transition hover:border-teal-100 hover:shadow-md">
-              <div className="relative h-36 w-full">
-                <Image
-                  src="https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=600"
-                  alt="Keys and car"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 640px) 100vw, 33vw"
-                />
-              </div>
-              <div className="p-6 text-center">
-                <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-teal-100 text-teal-600">
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <h3 className="mt-3 font-semibold text-slate-800">Verified owners</h3>
-                <p className="mt-2 text-sm text-gray-600">Book from trusted local owners and read reviews from past renters.</p>
-              </div>
-            </div>
-          </div>
-          <div className="mt-14 flex justify-center">
-            <Link
-              href="/listings"
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 text-base font-semibold text-white shadow-md shadow-emerald-600/25 transition hover:bg-emerald-700"
-            >
-              Browse all listings
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
+          <div className="absolute bottom-10 left-4 right-4 z-20 sm:left-6 sm:right-6 lg:bottom-12 lg:left-8 lg:right-8">
+            <div className="mx-auto max-w-5xl"><SearchForm cities={cities ?? undefined} /></div>
           </div>
         </div>
       </section>
+
+      <section id="how-it-works" className="border-y border-slate-200/70 bg-white py-8">
+        <div className="page-shell grid gap-6 md:grid-cols-3">
+          {[
+            ['01', 'Choose your dates', 'Search the days you need and only see suitable vehicles.'],
+            ['02', 'Select your car', 'Compare clear daily rates, photos, and vehicle details.'],
+            ['03', 'Book with confidence', 'Request your trip and manage every detail from your account.'],
+          ].map(([number, title, copy]) => (
+            <div key={number} className="flex gap-4 border-slate-200 md:not-last:border-r md:not-last:pr-7">
+              <span className="font-display text-3xl text-emerald-700/45">{number}</span>
+              <div><h2 className="font-semibold text-slate-900">{title}</h2><p className="mt-1 text-sm leading-6 text-slate-500">{copy}</p></div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {featuredCars.length > 0 && (
+        <section className="py-20">
+          <div className="page-shell">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="eyebrow">Available now</p>
+                <h2 className="font-display mt-2 text-3xl tracking-tight text-slate-900 sm:text-4xl">Popular cars in Harare</h2>
+                <p className="mt-2 text-slate-500">A curated selection ready for your next trip.</p>
+              </div>
+              <Link href="/listings" className="text-sm font-semibold text-emerald-700 hover:text-emerald-900">View all cars →</Link>
+            </div>
+            <div className="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {featuredCars.map((car) => <CarCard key={car.id} car={car} />)}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section id="why-us" className="bg-white py-20">
+        <div className="page-shell">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="eyebrow">Why Rental Car Connect</p>
+            <h2 className="font-display mt-3 text-3xl tracking-tight text-slate-900 sm:text-4xl">A calmer way to rent a car</h2>
+            <p className="mt-3 text-slate-500">The essentials are clear before you book, and your rental stays easy to manage afterward.</p>
+          </div>
+          <div className="mt-12 grid gap-5 md:grid-cols-3">
+            {[
+              ['Flexible dates', 'Find vehicles around your actual travel dates and manage your booking from one place.', 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z'],
+              ['Harare focused', 'A locally focused fleet with pickup details that are relevant to how you actually travel.', 'M12 21s7-4.35 7-11a7 7 0 1 0-14 0c0 6.65 7 11 7 11Zm0-8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z'],
+              ['Managed fleet', 'Vehicles are listed and managed centrally by our team for a more consistent rental experience.', 'm9 12 2 2 4-4m5.62-4.02A11.95 11.95 0 0 1 12 2.94a11.95 11.95 0 0 1-8.62 3.04A12 12 0 0 0 3 9c0 5.59 3.82 10.29 9 11.62 5.18-1.33 9-6.03 9-11.62 0-1.04-.13-2.05-.38-3.02Z'],
+            ].map(([title, copy, path]) => (
+              <div key={title} className="surface-card p-7">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700"><svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d={path} /></svg></div>
+                <h3 className="mt-5 text-lg font-semibold text-slate-900">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-500">{copy}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-12 flex justify-center"><Link href="/listings" className="primary-button">Browse all cars <span className="ml-2">→</span></Link></div>
+        </div>
+      </section>
+
+      <footer className="border-t border-slate-200 bg-[#f7f9f6] py-8">
+        <div className="page-shell flex flex-col gap-3 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-semibold text-emerald-800">Rental Car Connect</p>
+          <p>Simple, reliable car rental in Harare.</p>
+        </div>
+      </footer>
     </div>
   );
 }
