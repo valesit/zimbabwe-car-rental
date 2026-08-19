@@ -21,11 +21,11 @@ interface CarFormProps {
     image_urls: string[];
   };
   cities: { name: string }[];
-  /** Used as the first path segment in Storage (owner id for RLS). */
   imageStorageOwnerId: string;
+  returnTo?: string;
 }
 
-export function CarForm({ car, cities, imageStorageOwnerId }: CarFormProps) {
+export function CarForm({ car, cities, imageStorageOwnerId, returnTo = '/admin/cars' }: CarFormProps) {
   const router = useRouter();
   const [make, setMake] = useState(car?.make ?? '');
   const [model, setModel] = useState(car?.model ?? '');
@@ -35,11 +35,11 @@ export function CarForm({ car, cities, imageStorageOwnerId }: CarFormProps) {
   const [locationDetail, setLocationDetail] = useState(car?.location_detail ?? '');
   const [dailyRate, setDailyRate] = useState(car?.daily_rate_usd?.toString() ?? '');
   const [refundableDeposit, setRefundableDeposit] = useState(
-    car?.refundable_deposit_usd != null ? String(car.refundable_deposit_usd) : '0'
+    car?.refundable_deposit_usd != null ? String(car.refundable_deposit_usd) : '0',
   );
   const [description, setDescription] = useState(car?.description ?? '');
   const [imageList, setImageList] = useState<string[]>(() =>
-    (car?.image_urls ?? []).filter((u) => typeof u === 'string' && u.trim()),
+    (car?.image_urls ?? []).filter((url) => typeof url === 'string' && url.trim()),
   );
   const [urlExtras, setUrlExtras] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -50,18 +50,20 @@ export function CarForm({ car, cities, imageStorageOwnerId }: CarFormProps) {
     setError(null);
     setLoading(true);
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) {
       router.push('/login');
       return;
     }
+
     const fromTextarea = urlExtras
       .trim()
       .split('\n')
-      .map((u) => u.trim())
+      .map((url) => url.trim())
       .filter(Boolean);
-    const merged = [...imageList, ...fromTextarea];
-    const image_urls = Array.from(new Set(merged));
+    const image_urls = Array.from(new Set([...imageList, ...fromTextarea]));
 
     const payload = {
       make,
@@ -76,6 +78,7 @@ export function CarForm({ car, cities, imageStorageOwnerId }: CarFormProps) {
       image_urls,
       is_active: true,
     };
+
     if (car) {
       const { error: updateError } = await supabase.from('cars').update(payload).eq('id', car.id);
       if (updateError) {
@@ -83,7 +86,6 @@ export function CarForm({ car, cities, imageStorageOwnerId }: CarFormProps) {
         setLoading(false);
         return;
       }
-      router.push('/dashboard');
     } else {
       const { error: insertError } = await supabase.from('cars').insert({ ...payload, owner_id: user.id });
       if (insertError) {
@@ -91,153 +93,131 @@ export function CarForm({ car, cities, imageStorageOwnerId }: CarFormProps) {
         setLoading(false);
         return;
       }
-      router.push('/dashboard');
     }
+
+    router.push(returnTo);
     router.refresh();
     setLoading(false);
   }
 
+  const fieldClass =
+    'mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10';
+  const labelClass = 'text-xs font-semibold uppercase tracking-[0.11em] text-slate-500';
+
   return (
-    <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="block">
-          <span className="text-sm font-medium text-gray-700">Make</span>
-          <input
-            type="text"
-            value={make}
-            onChange={(e) => setMake(e.target.value)}
-            required
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+    <form onSubmit={handleSubmit} className="space-y-8">
+      <section>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.15em] text-emerald-700">Vehicle information</p>
+          <h2 className="font-display mt-2 text-2xl font-medium text-slate-950">The essentials</h2>
+          <p className="mt-1 text-sm text-slate-500">These details appear on the public listing.</p>
+        </div>
+
+        <div className="mt-6 grid gap-5 sm:grid-cols-2">
+          <label className="block">
+            <span className={labelClass}>Make</span>
+            <input type="text" value={make} onChange={(e) => setMake(e.target.value)} required placeholder="e.g. Toyota" className={fieldClass} />
+          </label>
+          <label className="block">
+            <span className={labelClass}>Model</span>
+            <input type="text" value={model} onChange={(e) => setModel(e.target.value)} required placeholder="e.g. RAV4" className={fieldClass} />
+          </label>
+          <label className="block">
+            <span className={labelClass}>Year</span>
+            <input type="number" value={year} onChange={(e) => setYear(e.target.value)} required min={1900} max={2100} placeholder="2024" className={fieldClass} />
+          </label>
+          <label className="block">
+            <span className={labelClass}>Vehicle type</span>
+            <select value={carType} onChange={(e) => setCarType(e.target.value)} required className={fieldClass}>
+              <option value="">Select type</option>
+              {CAR_TYPES.map((type) => (
+                <option key={type} value={type}>{CAR_TYPE_LABELS[type]}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <section className="border-t border-slate-100 pt-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-emerald-700">Location &amp; pricing</p>
+        <h2 className="font-display mt-2 text-2xl font-medium text-slate-950">Rental details</h2>
+        <div className="mt-6 grid gap-5 sm:grid-cols-2">
+          <label className="block">
+            <span className={labelClass}>City</span>
+            <select value={locationCity} onChange={(e) => setLocationCity(e.target.value)} required className={fieldClass}>
+              <option value="">Select city</option>
+              {cities.map((city) => (
+                <option key={city.name} value={city.name}>{city.name}</option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <span className={labelClass}>Area / pick-up location</span>
+            <input type="text" value={locationDetail} onChange={(e) => setLocationDetail(e.target.value)} placeholder="e.g. Borrowdale" className={fieldClass} />
+          </label>
+          <label className="block">
+            <span className={labelClass}>Daily rate (USD)</span>
+            <input type="number" value={dailyRate} onChange={(e) => setDailyRate(e.target.value)} required min={0} step={0.01} placeholder="65" className={fieldClass} />
+          </label>
+          <label className="block">
+            <span className={labelClass}>Refundable deposit (USD)</span>
+            <input type="number" value={refundableDeposit} onChange={(e) => setRefundableDeposit(e.target.value)} min={0} step={0.01} className={fieldClass} />
+            <p className="mt-2 text-xs leading-5 text-slate-400">Charged with the booking and refundable according to your rental policy.</p>
+          </label>
+        </div>
+        <label className="mt-5 block">
+          <span className={labelClass}>Description</span>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            rows={5}
+            placeholder="Describe the vehicle, comfort, ideal use and any useful rental details."
+            className={fieldClass}
           />
         </label>
-        <label className="block">
-          <span className="text-sm font-medium text-gray-700">Model</span>
-          <input
-            type="text"
-            value={model}
-            onChange={(e) => setModel(e.target.value)}
-            required
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+      </section>
+
+      <section className="border-t border-slate-100 pt-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-emerald-700">Photography</p>
+        <h2 className="font-display mt-2 text-2xl font-medium text-slate-950">Car photos</h2>
+        <p className="mt-1 text-sm text-slate-500">Use clear exterior and interior images. The first image becomes the primary listing photo.</p>
+        <div className="mt-5 rounded-2xl border border-dashed border-slate-300 bg-slate-50/70 p-5">
+          <CarImageUploader
+            ownerIdForStoragePath={imageStorageOwnerId}
+            imageUrls={imageList}
+            onChange={setImageList}
+          />
+        </div>
+        <label className="mt-5 block">
+          <span className={labelClass}>Additional image URLs</span>
+          <textarea
+            value={urlExtras}
+            onChange={(e) => setUrlExtras(e.target.value)}
+            rows={2}
+            placeholder="One URL per line (optional)"
+            className={fieldClass}
           />
         </label>
-      </div>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="block">
-          <span className="text-sm font-medium text-gray-700">Year</span>
-          <input
-            type="number"
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            required
-            min={1900}
-            max={2100}
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-          />
-        </label>
-        <label className="block">
-          <span className="text-sm font-medium text-gray-700">Car type</span>
-          <select
-            value={carType}
-            onChange={(e) => setCarType(e.target.value)}
-            required
-            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-          >
-            <option value="">Select</option>
-            {CAR_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {CAR_TYPE_LABELS[t]}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-      <label className="block">
-        <span className="text-sm font-medium text-gray-700">City</span>
-        <select
-          value={locationCity}
-          onChange={(e) => setLocationCity(e.target.value)}
-          required
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+      </section>
+
+      {error ? <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p> : null}
+
+      <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:items-center sm:justify-end">
+        <button
+          type="button"
+          onClick={() => router.push(returnTo)}
+          className="rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
         >
-          <option value="">Select</option>
-          {cities.map((c) => (
-            <option key={c.name} value={c.name}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="block">
-        <span className="text-sm font-medium text-gray-700">Address / area (optional)</span>
-        <input
-          type="text"
-          value={locationDetail}
-          onChange={(e) => setLocationDetail(e.target.value)}
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-        />
-      </label>
-      <label className="block">
-        <span className="text-sm font-medium text-gray-700">Daily rate (USD)</span>
-        <input
-          type="number"
-          value={dailyRate}
-          onChange={(e) => setDailyRate(e.target.value)}
-          required
-          min={0}
-          step={0.01}
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-        />
-      </label>
-      <label className="block">
-        <span className="text-sm font-medium text-gray-700">Refundable deposit (USD)</span>
-        <input
-          type="number"
-          value={refundableDeposit}
-          onChange={(e) => setRefundableDeposit(e.target.value)}
-          min={0}
-          step={0.01}
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-        />
-        <p className="mt-1 text-xs text-gray-500">
-          Charged with the booking; refundable per your policy (not automated in this app).
-        </p>
-      </label>
-      <label className="block">
-        <span className="text-sm font-medium text-gray-700">Description</span>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={3}
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-        />
-      </label>
-
-      <div className="rounded-xl border border-gray-200 bg-gray-50/80 p-4">
-        <CarImageUploader
-          ownerIdForStoragePath={imageStorageOwnerId}
-          imageUrls={imageList}
-          onChange={setImageList}
-        />
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={loading}
+          className="rounded-xl bg-emerald-900 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-950 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          {loading ? 'Saving…' : car ? 'Save changes' : 'Add to fleet'}
+        </button>
       </div>
-      <label className="block">
-        <span className="text-sm font-medium text-gray-700">Extra image URLs (one per line, optional)</span>
-        <textarea
-          value={urlExtras}
-          onChange={(e) => setUrlExtras(e.target.value)}
-          rows={2}
-          placeholder="https://…"
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
-        />
-      </label>
-
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
-      >
-        {loading ? 'Saving...' : car ? 'Update car' : 'Add car'}
-      </button>
     </form>
   );
 }

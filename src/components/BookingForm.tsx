@@ -6,29 +6,18 @@ import Link from 'next/link';
 import { PayPalButtons, PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { formatDailyRateUsd } from '@/lib/money';
 import { AvailabilityCalendar, type AvailabilityRow } from '@/components/AvailabilityCalendar';
-import {
-  buildBlockedSet,
-  isRangeEntirelyOpen,
-  toISODateLocal,
-} from '@/lib/availability';
-import {
-  computeBookingTotalUsd,
-  PICKUP_DROPOFF_FEE_USD,
-  totalUsd,
-} from '@/lib/booking-pricing';
+import { buildBlockedSet, isRangeEntirelyOpen, toISODateLocal } from '@/lib/availability';
+import { computeBookingTotalUsd, PICKUP_DROPOFF_FEE_USD, totalUsd } from '@/lib/booking-pricing';
 
 const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ?? '';
 
 interface BookingFormProps {
   carId: string;
   dailyRate: number;
-  /** Refundable security deposit for this listing (USD). */
   refundableDepositUsd: number;
   availability: AvailabilityRow[];
   nextAvailableDate: string | null;
-  /** Inclusive last bookable day (YYYY-MM-DD) */
   horizonEnd: string;
-  /** PayPal checkout is only shown when the visitor is signed in. */
   isLoggedIn: boolean;
 }
 
@@ -81,23 +70,26 @@ export function BookingForm({
       ? computeBookingTotalUsd(dailyRate, days, includePickupDropoff, refundableDepositUsd)
       : 0;
 
+  const inputClass =
+    'mt-2 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10';
+
   return (
-    <div className="mt-4 space-y-5">
+    <div className="mt-5 space-y-5">
       {nextAvailableDate ? (
-        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-950">
-          <span className="font-semibold text-emerald-800">Next available:</span>{' '}
-          {formatFriendlyDate(nextAvailableDate)}
+        <p className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-950">
+          <span className="font-semibold">Next available:</span> {formatFriendlyDate(nextAvailableDate)}
         </p>
       ) : (
-        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
-          No open days in the next booking window — every day may be blocked. Contact the owner.
+        <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          No open dates are showing in the current booking window. Contact support and we will help you find an alternative.
         </p>
       )}
 
       <div>
-        <p className="mb-2 font-brand text-sm font-semibold tracking-tight text-emerald-950">
-          Availability
-        </p>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <p className="text-sm font-semibold text-slate-900">Choose your dates</p>
+          <p className="text-xs text-slate-400">Available dates only</p>
+        </div>
         <AvailabilityCalendar
           availability={availability}
           horizonEnd={horizonEnd}
@@ -114,101 +106,96 @@ export function BookingForm({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">Start date</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500">Pick-up</span>
           <input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             min={todayStr}
             max={horizonEnd}
-            className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
+            className={inputClass}
           />
         </label>
         <label className="block">
-          <span className="text-sm font-medium text-slate-700">End date</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500">Return</span>
           <input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             min={startDate || todayStr}
             max={horizonEnd}
-            className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/25"
+            className={inputClass}
           />
         </label>
       </div>
 
-      {days > 0 && (
-        <div className="rounded-2xl border border-emerald-100/90 bg-gradient-to-br from-white to-emerald-50/40 p-4 shadow-sm ring-1 ring-emerald-100/60">
-          <p className="text-xs font-semibold uppercase tracking-wide text-emerald-800/80">Price summary</p>
-          <ul className="mt-3 space-y-2 text-sm text-slate-700">
+      {days > 0 ? (
+        <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">Price summary</p>
+          <ul className="mt-4 space-y-3 text-sm text-slate-600">
             <li className="flex justify-between gap-4">
-              <span>
-                Rental ({days} {days === 1 ? 'day' : 'days'})
-              </span>
-              <span className="font-medium text-slate-900">{formatDailyRateUsd(rentSubtotal)}</span>
+              <span>Rental ({days} {days === 1 ? 'day' : 'days'})</span>
+              <span className="font-semibold text-slate-900">{formatDailyRateUsd(rentSubtotal)}</span>
             </li>
-            {refundableDepositUsd > 0 && (
+            {refundableDepositUsd > 0 ? (
               <li className="flex justify-between gap-4">
                 <span>Refundable deposit</span>
-                <span className="font-medium text-slate-900">
-                  {formatDailyRateUsd(refundableDepositUsd)}
-                </span>
+                <span className="font-semibold text-slate-900">{formatDailyRateUsd(refundableDepositUsd)}</span>
               </li>
-            )}
+            ) : null}
             {isLoggedIn ? (
-              <li className="flex items-start justify-between gap-4 border-t border-emerald-100/80 pt-3">
-                <label className="flex cursor-pointer gap-2 text-left">
-                  <input
-                    type="checkbox"
-                    checked={includePickupDropoff}
-                    onChange={(e) => setIncludePickupDropoff(e.target.checked)}
-                    className="mt-0.5 h-4 w-4 rounded border-emerald-300 text-emerald-600 focus:ring-emerald-500"
-                  />
-                  <span>
-                    <span className="font-medium text-slate-900">Include pick-up &amp; drop-off</span>
-                    <span className="mt-0.5 block text-xs font-normal text-slate-500">
-                      Add {formatDailyRateUsd(PICKUP_DROPOFF_FEE_USD)} to your trip
+              <li className="border-t border-slate-200 pt-3">
+                <label className="flex cursor-pointer items-start justify-between gap-4">
+                  <span className="flex gap-2.5">
+                    <input
+                      type="checkbox"
+                      checked={includePickupDropoff}
+                      onChange={(e) => setIncludePickupDropoff(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 rounded border-emerald-300 text-emerald-700 focus:ring-emerald-500"
+                    />
+                    <span>
+                      <span className="font-medium text-slate-900">Pick-up &amp; drop-off service</span>
+                      <span className="mt-0.5 block text-xs text-slate-500">
+                        Add {formatDailyRateUsd(PICKUP_DROPOFF_FEE_USD)} to your trip
+                      </span>
                     </span>
                   </span>
+                  <span className="shrink-0 font-semibold text-slate-900">
+                    {includePickupDropoff ? formatDailyRateUsd(PICKUP_DROPOFF_FEE_USD) : '—'}
+                  </span>
                 </label>
-                <span className="shrink-0 font-medium text-slate-900">
-                  {includePickupDropoff ? formatDailyRateUsd(PICKUP_DROPOFF_FEE_USD) : '—'}
-                </span>
               </li>
             ) : (
-              <li className="border-t border-emerald-100/80 pt-3 text-xs text-slate-500">
-                Log in to add pick-up &amp; drop-off ({formatDailyRateUsd(PICKUP_DROPOFF_FEE_USD)}).
+              <li className="border-t border-slate-200 pt-3 text-xs text-slate-500">
+                Sign in to add pick-up &amp; drop-off service ({formatDailyRateUsd(PICKUP_DROPOFF_FEE_USD)}).
               </li>
             )}
           </ul>
-          <p className="mt-4 flex items-baseline justify-between border-t border-emerald-100/90 pt-3">
-            <span className="text-sm font-semibold text-emerald-950">Total due at checkout</span>
-            <span className="text-lg font-bold tracking-tight text-emerald-800">
-              {formatDailyRateUsd(grandTotal)}
-            </span>
-          </p>
+          <div className="mt-4 flex items-baseline justify-between border-t border-slate-200 pt-4">
+            <span className="text-sm font-semibold text-slate-900">Total due at checkout</span>
+            <span className="font-display text-2xl font-medium text-emerald-950">{formatDailyRateUsd(grandTotal)}</span>
+          </div>
         </div>
-      )}
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      ) : null}
+
+      {error ? <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p> : null}
 
       {!isLoggedIn && paypalClientId ? (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 px-4 py-4 text-center">
-          <p className="text-sm font-medium text-emerald-900">Log in to book and pay with PayPal</p>
-          <p className="mt-2 text-xs text-emerald-800/90">
-            Choose your dates above, then sign in to complete your booking.
-          </p>
-          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-center">
+        <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4 text-center">
+          <p className="font-semibold text-emerald-950">Sign in to complete your booking</p>
+          <p className="mt-1.5 text-xs leading-5 text-emerald-900/70">Choose your dates above, then sign in to pay securely with PayPal.</p>
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
             <Link
               href={loginRedirect}
-              className="inline-flex items-center justify-center rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-md shadow-emerald-600/25 transition hover:bg-emerald-700"
+              className="inline-flex items-center justify-center rounded-xl bg-emerald-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-950"
             >
-              Log in
+              Sign in
             </Link>
             <Link
               href={signupRedirect}
-              className="inline-flex items-center justify-center rounded-xl border border-emerald-300 bg-white px-4 py-3 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-50"
+              className="inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-white px-4 py-3 text-sm font-semibold text-emerald-900 transition hover:bg-emerald-50"
             >
-              Sign up
+              Create account
             </Link>
           </div>
         </div>
@@ -265,11 +252,7 @@ export function BookingForm({
                   throw new Error(payload.error ?? 'Payment could not be completed.');
                 }
                 const id = payload.bookingId;
-                if (id) {
-                  router.push(`/dashboard/bookings/confirmation/${id}`);
-                } else {
-                  router.push('/dashboard/bookings');
-                }
+                router.push(id ? `/dashboard/bookings/confirmation/${id}` : '/dashboard/bookings');
                 router.refresh();
               } finally {
                 setLoading(false);
@@ -282,24 +265,19 @@ export function BookingForm({
           />
         </PayPalScriptProvider>
       ) : (
-        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
-          Online checkout is not configured. Set{' '}
-          <code className="rounded bg-amber-100 px-1">NEXT_PUBLIC_PAYPAL_CLIENT_ID</code> and server-side
-          PayPal variables in the environment.
-        </p>
+        <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          Online checkout is temporarily unavailable. <Link href="/support" className="font-semibold underline">Contact support</Link> for help with this booking.
+        </div>
       )}
 
-      {loading && (
-        <p className="text-center text-sm text-gray-600">Processing…</p>
-      )}
+      {loading ? <p className="text-center text-sm text-slate-500">Processing…</p> : null}
     </div>
   );
 }
 
 function formatFriendlyDate(iso: string) {
   const [y, m, d] = iso.split('-').map(Number);
-  const dt = new Date(y, m - 1, d);
-  return dt.toLocaleDateString(undefined, {
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, {
     weekday: 'short',
     month: 'short',
     day: 'numeric',

@@ -16,13 +16,13 @@ export default async function DashboardLayout({
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
 
   return (
-    <div className="flex min-h-screen bg-slate-100/90">
+    <div className="flex min-h-screen bg-[#f5f7f3]">
       <UserDashboardSidebar email={user.email} showAdminLink={profile?.role === 'admin'} />
-      <div className="flex min-h-screen flex-1 flex-col">
-        <div className="flex-1 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-emerald-50/50 via-transparent to-transparent px-4 py-8 sm:px-8 lg:px-10">
+      <main className="min-w-0 flex-1">
+        <div className="min-h-screen bg-[radial-gradient(circle_at_top_right,rgba(209,250,229,0.42),transparent_32rem)] px-5 py-8 sm:px-8 sm:py-10 xl:px-12">
           {children}
         </div>
-      </div>
+      </main>
     </div>
   );
 }
