@@ -20,7 +20,6 @@ export default async function AdminDashboardPage() {
     carsRes,
     usersRes,
     ticketsRes,
-    bookingsCountRes,
     activeCarsRes,
     bookingsRowsRes,
     recentBookingsRes,
@@ -28,7 +27,6 @@ export default async function AdminDashboardPage() {
     supabase.from('cars').select('*', { count: 'exact', head: true }),
     supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'user'),
     supabase.from('support_tickets').select('*', { count: 'exact', head: true }).neq('status', 'resolved'),
-    supabase.from('bookings').select('*', { count: 'exact', head: true }),
     supabase.from('cars').select('*', { count: 'exact', head: true }).eq('is_active', true),
     supabase.from('bookings').select('total_amount_usd, status, created_at'),
     supabase
