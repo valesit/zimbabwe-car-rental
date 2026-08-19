@@ -31,15 +31,22 @@ export function AdminTicketForm({
     router.refresh();
   }
 
+  const fieldClass =
+    'mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10';
+
   return (
-    <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-      <h2 className="text-lg font-semibold text-slate-800">Update ticket</h2>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-[0.15em] text-emerald-700">Response</p>
+        <h2 className="font-display mt-2 text-2xl font-medium text-slate-950">Update this request</h2>
+        <p className="mt-1 text-sm leading-6 text-slate-500">Your response is visible to the customer in their support center.</p>
+      </div>
       <label className="block">
-        <span className="text-sm font-medium text-gray-700">Status</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500">Status</span>
         <select
           value={newStatus}
           onChange={(e) => setNewStatus(e.target.value as SupportTicketStatus)}
-          className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          className={fieldClass}
         >
           <option value="open">Open</option>
           <option value="in_progress">In progress</option>
@@ -47,20 +54,21 @@ export function AdminTicketForm({
         </select>
       </label>
       <label className="block">
-        <span className="text-sm font-medium text-gray-700">Admin notes (visible to user)</span>
+        <span className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500">Customer response</span>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          rows={4}
-          className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm"
+          rows={6}
+          placeholder="Write a clear response or update for the customer..."
+          className={fieldClass}
         />
       </label>
       <button
         type="submit"
         disabled={loading}
-        className="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-50"
+        className="inline-flex w-full items-center justify-center rounded-xl bg-emerald-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-950 disabled:opacity-50 sm:w-auto"
       >
-        {loading ? 'Saving...' : 'Save'}
+        {loading ? 'Saving…' : 'Save response'}
       </button>
     </form>
   );
