@@ -8,7 +8,7 @@ import { hasOpenDayInHorizon, horizonEndIso } from '@/lib/availability';
 export const revalidate = 60;
 
 const HERO_IMAGE =
-  'https://images.pexels.com/photos/16773464/pexels-photo-16773464.jpeg?auto=compress&cs=tinysrgb&w=1800';
+  'https://upload.wikimedia.org/wikipedia/commons/7/7e/13-15_Toyota_RAV4.jpg';
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -99,11 +99,11 @@ export default async function HomePage() {
                 alt="Toyota RAV4 available for car hire"
                 fill
                 priority
-                className="scale-[1.04] object-cover"
-                style={{ objectPosition: 'center 45%' }}
+                className="object-cover"
+                style={{ objectPosition: 'center center' }}
                 sizes="(max-width: 1024px) 100vw, 56vw"
               />
-              <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-white/30 to-transparent sm:w-32" aria-hidden="true" />
+              <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-white/20 to-transparent sm:w-32" aria-hidden="true" />
             </div>
           </div>
 
