@@ -63,14 +63,14 @@ export function HeaderNav({
           )}
         </button>
 
-        <div className="hidden items-center md:flex">
-          <div className="flex items-stretch divide-x divide-[#dfe7e2]">
+        <div className="hidden items-center gap-4 md:flex lg:gap-6">
+          <nav className="flex items-center gap-1" aria-label="Primary">
             <DesktopNavLink href="/listings" label="Browse cars" icon="car" />
             <DesktopNavLink href="/#how-it-works" label="How it works" icon="steps" />
             <DesktopNavLink href="/#why-us" label="Why us" icon="shield" />
-          </div>
+          </nav>
 
-          <div className="ml-5 flex items-center gap-5 lg:ml-7 lg:gap-6">
+          <div className="flex items-center gap-5 border-l border-[#e4e9e6] pl-5 lg:gap-6 lg:pl-6">
             {isLoggedIn ? (
               <>
                 <Link href="/dashboard" className={accountLink}>
@@ -168,11 +168,10 @@ function DesktopNavLink({ href, label, icon }: { href: string; label: string; ic
   return (
     <Link
       href={href}
-      className="group relative flex min-w-[112px] flex-col items-center justify-center gap-1.5 px-4 py-2 text-[#173d30] transition-colors hover:text-[#0f6847] lg:min-w-[128px] lg:px-5"
+      className="group inline-flex items-center gap-2 rounded-xl px-3.5 py-3 text-[#234238] transition-colors hover:bg-[#f5f9f6] hover:text-[#0f6847] lg:px-4"
     >
       <NavGlyph type={icon} />
       <span className="text-[15px] font-semibold tracking-[-0.02em] lg:text-base">{label}</span>
-      <span className="absolute inset-x-5 -bottom-2 h-0.5 origin-center scale-x-0 rounded-full bg-[#247157] transition-transform duration-200 group-hover:scale-x-100" aria-hidden="true" />
     </Link>
   );
 }
@@ -180,7 +179,7 @@ function DesktopNavLink({ href, label, icon }: { href: string; label: string; ic
 function NavGlyph({ type }: { type: NavGlyphKind }) {
   if (type === 'car') {
     return (
-      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <svg className="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M5 16.5h14M6.25 16.5l.65-5.15A2 2 0 018.88 9.6h6.24a2 2 0 011.98 1.75l.65 5.15M7.5 9.6l1.05-2.25A1.5 1.5 0 019.9 6.5h4.2a1.5 1.5 0 011.35.85L16.5 9.6M7 16.5v1.25M17 16.5v1.25M8.25 13.25h.01M15.75 13.25h.01" />
       </svg>
     );
@@ -188,14 +187,14 @@ function NavGlyph({ type }: { type: NavGlyphKind }) {
 
   if (type === 'steps') {
     return (
-      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <svg className="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M12 3.75a8.25 8.25 0 108.25 8.25A8.25 8.25 0 0012 3.75zM8.75 12h6.5M12 8.75v6.5" />
       </svg>
     );
   }
 
   return (
-    <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <svg className="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M12 3.75l6.25 2.5v4.9c0 4.05-2.55 7.65-6.25 9.1-3.7-1.45-6.25-5.05-6.25-9.1v-4.9L12 3.75zM9.25 12l1.75 1.75 3.75-4" />
     </svg>
   );
