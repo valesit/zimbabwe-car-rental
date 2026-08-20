@@ -8,7 +8,7 @@ import { hasOpenDayInHorizon, horizonEndIso } from '@/lib/availability';
 export const revalidate = 60;
 
 const HERO_IMAGE =
-  'https://images.unsplash.com/photo-1701338212752-9cb29e324a65?auto=format&fit=crop&w=1800&q=88';
+  'https://images.pexels.com/photos/16773464/pexels-photo-16773464.jpeg?auto=compress&cs=tinysrgb&w=1800';
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -55,24 +55,17 @@ export default async function HomePage() {
       <section className="relative overflow-hidden border-b border-[#edf1ee] bg-white">
         <div className="mx-auto max-w-7xl px-4 pb-14 pt-10 sm:px-6 sm:pb-16 sm:pt-14 lg:px-8 lg:pb-20 lg:pt-14">
           <div className="grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-8">
-            <div className="relative z-10 max-w-xl">
-              <p className="mb-5 inline-flex items-center gap-2.5 rounded-full border border-[#cfe1d8] bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-[0.15em] text-[#235e49] shadow-[0_10px_25px_-22px_rgba(15,70,51,0.65)]">
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M12 21a9 9 0 100-18 9 9 0 000 18zM3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 010 18M12 3a14 14 0 000 18" />
-                </svg>
-                Car hire in Zimbabwe
-              </p>
-
+            <div className="relative z-10 max-w-xl lg:pb-16">
               <h1 className="font-display text-5xl font-medium leading-[0.94] tracking-[-0.052em] text-[#101815] sm:text-6xl lg:text-[5.2rem]">
                 Your journey,
                 <span className="block text-[#3d7a61]">our cars.</span>
               </h1>
 
               <p className="mt-6 max-w-lg text-base leading-7 text-[#4f5f59] sm:text-lg sm:leading-8">
-                Find and book reliable cars across Zimbabwe with straightforward pricing, flexible dates, and local support when you need it.
+                Find and book reliable cars across Zimbabwe with transparent pricing, flexible dates, and dependable local support.
               </p>
 
-              <div className="mt-8 flex flex-wrap gap-3">
+              <div className="mt-8 grid max-w-[31rem] grid-cols-1 gap-3 sm:grid-cols-2">
                 {[
                   ['Inspected cars', 'shield'],
                   ['Clear pricing', 'tag'],
@@ -103,18 +96,18 @@ export default async function HomePage() {
             <div className="relative min-h-[330px] overflow-hidden rounded-[2.25rem] border border-[#e8edea] bg-[#f4f6f4] shadow-[0_28px_70px_-38px_rgba(15,23,42,0.32)] sm:min-h-[430px] lg:min-h-[520px]">
               <Image
                 src={HERO_IMAGE}
-                alt="Green SUV available for car hire"
+                alt="Toyota RAV4 available for car hire"
                 fill
                 priority
-                className="object-cover"
-                style={{ objectPosition: 'center 58%' }}
+                className="scale-[1.04] object-cover"
+                style={{ objectPosition: 'center 45%' }}
                 sizes="(max-width: 1024px) 100vw, 56vw"
               />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#0c1a14]/[0.015] via-transparent to-[#0c1a14]/[0.05]" aria-hidden="true" />
+              <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-white/30 to-transparent sm:w-32" aria-hidden="true" />
             </div>
           </div>
 
-          <div className="relative z-20 mt-8 lg:-mt-10">
+          <div className="relative z-20 mt-8 lg:-mt-12">
             <div className="mx-auto max-w-6xl">
               <SearchForm cities={cities ?? undefined} />
             </div>
