@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { CAR_TYPES, CAR_TYPE_LABELS } from '@/types/database';
@@ -89,6 +90,13 @@ export function SearchForm({ cities }: { cities?: { name: string }[] }) {
           </svg>
         </button>
       </div>
+
+      <p className="pt-1 text-center text-sm text-[#496057] sm:col-span-2 lg:col-span-12">
+        Looking for an airport pickup or drop-off?{' '}
+        <Link href="/support" className="font-semibold text-[#2f765c] underline decoration-[#9ab9aa] underline-offset-4 transition hover:text-[#1e5d43]">
+          Click here.
+        </Link>
+      </p>
     </form>
   );
 }
