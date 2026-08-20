@@ -8,7 +8,7 @@ import { hasOpenDayInHorizon, horizonEndIso } from '@/lib/availability';
 export const revalidate = 60;
 
 const HERO_IMAGE =
-  'https://images.unsplash.com/photo-1758349946904-64e3372fb3f3?auto=format&fit=crop&w=1800&q=88';
+  'https://images.unsplash.com/photo-1701338212752-9cb29e324a65?auto=format&fit=crop&w=1800&q=88';
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -53,70 +53,71 @@ export default async function HomePage() {
     <div className="bg-white">
       {/* Hero */}
       <section className="relative overflow-hidden border-b border-[#edf1ee] bg-white">
-        <div
-          className="absolute inset-0 bg-[radial-gradient(circle_at_10%_24%,rgba(23,100,71,0.05),transparent_28%),radial-gradient(circle_at_88%_4%,rgba(182,157,109,0.045),transparent_25%)]"
-          aria-hidden="true"
-        />
-        <div className="relative mx-auto grid max-w-[1440px] items-center gap-10 px-4 pb-10 pt-10 sm:px-6 sm:pb-14 sm:pt-14 lg:grid-cols-[0.82fr_1.18fr] lg:gap-7 lg:px-8 lg:pb-28 lg:pt-10">
-          <div className="relative z-10 py-2 lg:pb-10 lg:pt-5">
-            <p className="mb-5 inline-flex items-center gap-2.5 rounded-full border border-[#cfe1d8] bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-[0.15em] text-[#235e49] shadow-[0_10px_25px_-22px_rgba(15,70,51,0.65)]">
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M12 21a9 9 0 100-18 9 9 0 000 18zM3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 010 18M12 3a14 14 0 000 18" />
-              </svg>
-              Car hire in Zimbabwe
-            </p>
+        <div className="mx-auto max-w-7xl px-4 pb-14 pt-10 sm:px-6 sm:pb-16 sm:pt-14 lg:px-8 lg:pb-20 lg:pt-14">
+          <div className="grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-8">
+            <div className="relative z-10 max-w-xl">
+              <p className="mb-5 inline-flex items-center gap-2.5 rounded-full border border-[#cfe1d8] bg-white px-4 py-2 text-[11px] font-bold uppercase tracking-[0.15em] text-[#235e49] shadow-[0_10px_25px_-22px_rgba(15,70,51,0.65)]">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M12 21a9 9 0 100-18 9 9 0 000 18zM3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 010 18M12 3a14 14 0 000 18" />
+                </svg>
+                Car hire in Zimbabwe
+              </p>
 
-            <h1 className="font-display max-w-[650px] text-5xl font-medium leading-[0.94] tracking-[-0.052em] text-[#101815] sm:text-6xl lg:text-[5.25rem] xl:text-[5.75rem]">
-              Your journey,
-              <span className="block text-[#2f765c]">our cars.</span>
-            </h1>
+              <h1 className="font-display text-5xl font-medium leading-[0.94] tracking-[-0.052em] text-[#101815] sm:text-6xl lg:text-[5.2rem]">
+                Your journey,
+                <span className="block text-[#3d7a61]">our cars.</span>
+              </h1>
 
-            <p className="mt-6 max-w-xl text-base leading-7 text-[#455a52] sm:text-[1.06rem] sm:leading-8">
-              Find and book reliable cars across Zimbabwe with straightforward pricing, flexible dates, and local support when you need it.
-            </p>
+              <p className="mt-6 max-w-lg text-base leading-7 text-[#4f5f59] sm:text-lg sm:leading-8">
+                Find and book reliable cars across Zimbabwe with straightforward pricing, flexible dates, and local support when you need it.
+              </p>
 
-            <div className="mt-7 grid max-w-2xl grid-cols-2 gap-3 text-sm text-[#34483f] sm:flex sm:flex-wrap">
-              {[
-                ['Inspected cars', 'shield'],
-                ['Clear pricing', 'tag'],
-                ['Flexible dates', 'calendar'],
-                ['Local support', 'support'],
-              ].map(([label, icon]) => (
-                <div
-                  key={label}
-                  className="flex items-center gap-2.5 rounded-xl border border-[#e0e6e2] bg-white px-3.5 py-2.5 shadow-[0_12px_25px_-22px_rgba(20,54,42,0.55)]"
-                >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#f1f8f4] text-[#176447]">
-                    {icon === 'calendar' ? (
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                    ) : icon === 'support' ? (
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M18.364 5.636a9 9 0 010 12.728M5.636 5.636a9 9 0 000 12.728M12 9v3m0 4h.01M9.172 9.172a4 4 0 115.656 5.656 4 4 0 01-5.656-5.656z" /></svg>
-                    ) : icon === 'tag' ? (
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M7 7h.01M3 11l8.586-8.586A2 2 0 0113 2h6a2 2 0 012 2v6a2 2 0 01-.586 1.414L11.828 20a2 2 0 01-2.828 0L3 14a2 2 0 010-3z" /></svg>
-                    ) : (
-                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 3c-2.755 0-5.29.93-7.318 2.493A11.99 11.99 0 003 12c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-2.146-.564-4.16-1.382-6.016z" /></svg>
-                    )}
-                  </span>
-                  <span className="font-semibold tracking-[-0.01em]">{label}</span>
-                </div>
-              ))}
+              <div className="mt-8 flex flex-wrap gap-3">
+                {[
+                  ['Inspected cars', 'shield'],
+                  ['Clear pricing', 'tag'],
+                  ['Flexible dates', 'calendar'],
+                  ['Local support', 'support'],
+                ].map(([label, icon]) => (
+                  <div
+                    key={label}
+                    className="inline-flex items-center gap-2.5 rounded-xl border border-[#e0e6e2] bg-white px-4 py-3 text-sm font-medium text-[#33433d] shadow-[0_12px_25px_-22px_rgba(20,54,42,0.55)]"
+                  >
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#f2f8f4] text-[#176447]">
+                      {icon === 'calendar' ? (
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                      ) : icon === 'support' ? (
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M18.364 5.636a9 9 0 010 12.728M5.636 5.636a9 9 0 000 12.728M12 9v3m0 4h.01M9.172 9.172a4 4 0 115.656 5.656 4 4 0 01-5.656-5.656z" /></svg>
+                      ) : icon === 'tag' ? (
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M7 7h.01M3 11l8.586-8.586A2 2 0 0113 2h6a2 2 0 012 2v6a2 2 0 01-.586 1.414L11.828 20a2 2 0 01-2.828 0L3 14a2 2 0 010-3z" /></svg>
+                      ) : (
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 3c-2.755 0-5.29.93-7.318 2.493A11.99 11.99 0 003 12c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-2.146-.564-4.16-1.382-6.016z" /></svg>
+                      )}
+                    </span>
+                    <span>{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative min-h-[330px] overflow-hidden rounded-[2.25rem] border border-[#e8edea] bg-[#f4f6f4] shadow-[0_28px_70px_-38px_rgba(15,23,42,0.32)] sm:min-h-[430px] lg:min-h-[520px]">
+              <Image
+                src={HERO_IMAGE}
+                alt="Green SUV available for car hire"
+                fill
+                priority
+                className="object-cover"
+                style={{ objectPosition: 'center 58%' }}
+                sizes="(max-width: 1024px) 100vw, 56vw"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0c1a14]/[0.015] via-transparent to-[#0c1a14]/[0.05]" aria-hidden="true" />
             </div>
           </div>
 
-          <div className="relative min-h-[340px] overflow-hidden rounded-[2rem] border border-[#edf0ee] bg-[#f3f5f3] shadow-[0_35px_80px_-46px_rgba(15,40,31,0.42)] sm:min-h-[470px] lg:min-h-[610px] lg:rounded-[2.35rem]">
-            <Image
-              src={HERO_IMAGE}
-              alt="Dark green SUV available for car hire"
-              fill
-              priority
-              className="object-cover object-center"
-              sizes="(max-width: 1024px) 100vw, 60vw"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-[#0c1a14]/[0.025] via-transparent to-[#0c1a14]/[0.08]" aria-hidden="true" />
-          </div>
-
-          <div className="relative z-20 lg:absolute lg:bottom-7 lg:left-8 lg:right-8 lg:mx-auto lg:max-w-[1120px] xl:max-w-[1180px]">
-            <SearchForm cities={cities ?? undefined} />
+          <div className="relative z-20 mt-8 lg:-mt-10">
+            <div className="mx-auto max-w-6xl">
+              <SearchForm cities={cities ?? undefined} />
+            </div>
           </div>
         </div>
       </section>
