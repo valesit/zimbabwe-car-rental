@@ -3,8 +3,6 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
-type NavGlyphKind = 'car' | 'steps' | 'shield';
-
 export function HeaderNav({
   isLoggedIn,
   isAdmin,
@@ -25,6 +23,8 @@ export function HeaderNav({
 
   const mobileLink =
     'block rounded-xl px-3 py-3 text-base font-medium tracking-[-0.01em] text-[#243c33] transition-colors hover:bg-emerald-50 hover:text-[#155f45]';
+  const desktopLink =
+    'whitespace-nowrap rounded-lg px-2.5 py-2 text-[16px] font-semibold tracking-[-0.02em] text-[#263b33] transition-colors hover:text-[#176447]';
   const accountLink =
     'whitespace-nowrap text-[15px] font-semibold tracking-[-0.015em] text-[#26362f] transition-colors duration-200 hover:text-[#176a4b]';
 
@@ -63,19 +63,17 @@ export function HeaderNav({
           )}
         </button>
 
-        <div className="hidden items-center gap-4 md:flex lg:gap-6">
-          <nav className="flex items-center gap-1" aria-label="Primary">
-            <DesktopNavLink href="/listings" label="Browse cars" icon="car" />
-            <DesktopNavLink href="/#how-it-works" label="How it works" icon="steps" />
-            <DesktopNavLink href="/#why-us" label="Why us" icon="shield" />
+        <div className="hidden items-center gap-5 md:flex lg:gap-7">
+          <nav className="flex items-center gap-3 lg:gap-5" aria-label="Primary">
+            <Link href="/listings" className={desktopLink}>Browse cars</Link>
+            <Link href="/#how-it-works" className={desktopLink}>How it works</Link>
+            <Link href="/#why-us" className={desktopLink}>Why us</Link>
           </nav>
 
-          <div className="flex items-center gap-5 border-l border-[#e4e9e6] pl-5 lg:gap-6 lg:pl-6">
+          <div className="flex items-center gap-5 border-l border-[#e4e9e6] pl-5 lg:gap-6 lg:pl-7">
             {isLoggedIn ? (
               <>
-                <Link href="/dashboard" className={accountLink}>
-                  Dashboard
-                </Link>
+                <Link href="/dashboard" className={accountLink}>Dashboard</Link>
                 {isAdmin && (
                   <Link
                     href="/admin"
@@ -85,23 +83,16 @@ export function HeaderNav({
                   </Link>
                 )}
                 <form action="/auth/signout" method="post">
-                  <button type="submit" className={accountLink}>
-                    Sign out
-                  </button>
+                  <button type="submit" className={accountLink}>Sign out</button>
                 </form>
               </>
             ) : (
               <>
-                <Link href="/login" className={accountLink}>
-                  Sign in
-                </Link>
+                <Link href="/login" className={accountLink}>Sign in</Link>
                 <Link
                   href="/signup"
-                  className="inline-flex items-center gap-2 whitespace-nowrap rounded-xl bg-[#176447] px-4 py-3 text-[15px] font-semibold tracking-[-0.01em] text-white shadow-[0_12px_24px_-16px_rgba(18,88,62,0.65)] transition hover:bg-[#125239]"
+                  className="inline-flex items-center whitespace-nowrap rounded-xl bg-[#176447] px-5 py-3 text-[15px] font-semibold tracking-[-0.01em] text-white shadow-[0_12px_24px_-16px_rgba(18,88,62,0.65)] transition hover:bg-[#125239]"
                 >
-                  <svg className="h-[18px] w-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M15.75 6.75a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.1a7.5 7.5 0 0115 0" />
-                  </svg>
                   Sign up
                 </Link>
               </>
@@ -118,36 +109,22 @@ export function HeaderNav({
           aria-label="Mobile"
         >
           <div className="flex flex-col gap-0.5">
-            <Link href="/listings" className={mobileLink} onClick={() => setMenuOpen(false)}>
-              Browse cars
-            </Link>
-            <Link href="/#how-it-works" className={mobileLink} onClick={() => setMenuOpen(false)}>
-              How it works
-            </Link>
-            <Link href="/#why-us" className={mobileLink} onClick={() => setMenuOpen(false)}>
-              Why us
-            </Link>
+            <Link href="/listings" className={mobileLink} onClick={() => setMenuOpen(false)}>Browse cars</Link>
+            <Link href="/#how-it-works" className={mobileLink} onClick={() => setMenuOpen(false)}>How it works</Link>
+            <Link href="/#why-us" className={mobileLink} onClick={() => setMenuOpen(false)}>Why us</Link>
             {isLoggedIn ? (
               <>
-                <Link href="/dashboard" className={mobileLink} onClick={() => setMenuOpen(false)}>
-                  Dashboard
-                </Link>
+                <Link href="/dashboard" className={mobileLink} onClick={() => setMenuOpen(false)}>Dashboard</Link>
                 {isAdmin && (
-                  <Link href="/admin" className={mobileLink + ' text-amber-700'} onClick={() => setMenuOpen(false)}>
-                    Admin
-                  </Link>
+                  <Link href="/admin" className={mobileLink + ' text-amber-700'} onClick={() => setMenuOpen(false)}>Admin</Link>
                 )}
                 <form action="/auth/signout" method="post">
-                  <button type="submit" className={mobileLink + ' w-full text-left'}>
-                    Sign out
-                  </button>
+                  <button type="submit" className={mobileLink + ' w-full text-left'}>Sign out</button>
                 </form>
               </>
             ) : (
               <>
-                <Link href="/login" className={mobileLink + ' font-semibold'} onClick={() => setMenuOpen(false)}>
-                  Sign in
-                </Link>
+                <Link href="/login" className={mobileLink + ' font-semibold'} onClick={() => setMenuOpen(false)}>Sign in</Link>
                 <Link
                   href="/signup"
                   className="mt-2 block rounded-xl bg-[#176447] px-4 py-3 text-center text-base font-semibold text-white shadow-sm transition hover:bg-[#125239]"
@@ -161,41 +138,5 @@ export function HeaderNav({
         </div>
       ) : null}
     </div>
-  );
-}
-
-function DesktopNavLink({ href, label, icon }: { href: string; label: string; icon: NavGlyphKind }) {
-  return (
-    <Link
-      href={href}
-      className="group inline-flex items-center gap-2 rounded-xl px-3.5 py-3 text-[#234238] transition-colors hover:bg-[#f5f9f6] hover:text-[#0f6847] lg:px-4"
-    >
-      <NavGlyph type={icon} />
-      <span className="text-[15px] font-semibold tracking-[-0.02em] lg:text-base">{label}</span>
-    </Link>
-  );
-}
-
-function NavGlyph({ type }: { type: NavGlyphKind }) {
-  if (type === 'car') {
-    return (
-      <svg className="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M5 16.5h14M6.25 16.5l.65-5.15A2 2 0 018.88 9.6h6.24a2 2 0 011.98 1.75l.65 5.15M7.5 9.6l1.05-2.25A1.5 1.5 0 019.9 6.5h4.2a1.5 1.5 0 011.35.85L16.5 9.6M7 16.5v1.25M17 16.5v1.25M8.25 13.25h.01M15.75 13.25h.01" />
-      </svg>
-    );
-  }
-
-  if (type === 'steps') {
-    return (
-      <svg className="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M12 3.75a8.25 8.25 0 108.25 8.25A8.25 8.25 0 0012 3.75zM8.75 12h6.5M12 8.75v6.5" />
-      </svg>
-    );
-  }
-
-  return (
-    <svg className="h-[18px] w-[18px] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.7} d="M12 3.75l6.25 2.5v4.9c0 4.05-2.55 7.65-6.25 9.1-3.7-1.45-6.25-5.05-6.25-9.1v-4.9L12 3.75zM9.25 12l1.75 1.75 3.75-4" />
-    </svg>
   );
 }
