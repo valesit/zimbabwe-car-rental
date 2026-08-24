@@ -74,7 +74,7 @@ export default async function HomePage() {
                 ].map((label) => (
                   <div
                     key={label}
-                    className="flex min-h-[3.45rem] items-center rounded-xl border border-[#e0e6e2] bg-white px-5 py-3 text-sm font-medium text-[#283a33] shadow-[0_12px_25px_-22px_rgba(20,54,42,0.38)]"
+                    className="flex min-h-[3.45rem] items-center rounded-xl border border-[#dedfd6] bg-[linear-gradient(135deg,#fffdf8_0%,#fbfaf2_52%,#f1f5e9_100%)] px-5 py-3 text-sm font-medium text-[#283a33] shadow-[0_14px_28px_-24px_rgba(43,73,59,0.32)]"
                   >
                     {label}
                   </div>
