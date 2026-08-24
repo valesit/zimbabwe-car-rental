@@ -8,7 +8,7 @@ import { hasOpenDayInHorizon, horizonEndIso } from '@/lib/availability';
 export const revalidate = 60;
 
 const HERO_IMAGE =
-  'https://upload.wikimedia.org/wikipedia/commons/7/7e/13-15_Toyota_RAV4.jpg';
+  'https://images.unsplash.com/photo-1756818564457-7706ab6a68e7?auto=format&fit=crop&w=1800&q=88';
 
 export default async function HomePage() {
   const supabase = await createClient();
@@ -67,27 +67,16 @@ export default async function HomePage() {
 
               <div className="mt-8 grid max-w-[31rem] grid-cols-1 gap-3 sm:grid-cols-2">
                 {[
-                  ['Inspected cars', 'shield'],
-                  ['Clear pricing', 'tag'],
-                  ['Flexible dates', 'calendar'],
-                  ['Local support', 'support'],
-                ].map(([label, icon]) => (
+                  'Inspected cars',
+                  'Clear pricing',
+                  'Flexible dates',
+                  'Local support',
+                ].map((label) => (
                   <div
                     key={label}
-                    className="inline-flex items-center gap-2.5 rounded-xl border border-[#e0e6e2] bg-white px-4 py-3 text-sm font-medium text-[#33433d] shadow-[0_12px_25px_-22px_rgba(20,54,42,0.55)]"
+                    className="flex min-h-[3.45rem] items-center rounded-xl border border-[#e0e6e2] bg-white px-5 py-3 text-sm font-medium text-[#283a33] shadow-[0_12px_25px_-22px_rgba(20,54,42,0.38)]"
                   >
-                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#f2f8f4] text-[#176447]">
-                      {icon === 'calendar' ? (
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                      ) : icon === 'support' ? (
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M18.364 5.636a9 9 0 010 12.728M5.636 5.636a9 9 0 000 12.728M12 9v3m0 4h.01M9.172 9.172a4 4 0 115.656 5.656 4 4 0 01-5.656-5.656z" /></svg>
-                      ) : icon === 'tag' ? (
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M7 7h.01M3 11l8.586-8.586A2 2 0 0113 2h6a2 2 0 012 2v6a2 2 0 01-.586 1.414L11.828 20a2 2 0 01-2.828 0L3 14a2 2 0 010-3z" /></svg>
-                      ) : (
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 3c-2.755 0-5.29.93-7.318 2.493A11.99 11.99 0 003 12c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-2.146-.564-4.16-1.382-6.016z" /></svg>
-                      )}
-                    </span>
-                    <span>{label}</span>
+                    {label}
                   </div>
                 ))}
               </div>
@@ -96,14 +85,13 @@ export default async function HomePage() {
             <div className="relative min-h-[330px] overflow-hidden rounded-[2.25rem] border border-[#e8edea] bg-[#f4f6f4] shadow-[0_28px_70px_-38px_rgba(15,23,42,0.32)] sm:min-h-[430px] lg:min-h-[520px]">
               <Image
                 src={HERO_IMAGE}
-                alt="Toyota RAV4 available for car hire"
+                alt="Toyota RAV4 on a scenic journey"
                 fill
                 priority
                 className="object-cover"
-                style={{ objectPosition: 'center center' }}
+                style={{ objectPosition: 'center 52%' }}
                 sizes="(max-width: 1024px) 100vw, 56vw"
               />
-              <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-white/20 to-transparent sm:w-32" aria-hidden="true" />
             </div>
           </div>
 
@@ -187,19 +175,13 @@ export default async function HomePage() {
                 ['Flexible booking', 'Search by the exact dates you need and quickly see cars that fit your plans.'],
                 ['Locally managed', 'A Zimbabwe-focused service designed around dependable local support and a growing fleet.'],
                 ['Curated fleet', 'Every vehicle is listed and managed by our team, so the experience stays consistent.'],
-              ].map(([title, copy], index) => (
-                <div key={title} className="rounded-2xl border border-[#e3e9e5] bg-white p-6 shadow-[0_12px_30px_-30px_rgba(15,23,42,0.28)]">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800">
-                    {index === 0 ? (
-                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                    ) : index === 1 ? (
-                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                    ) : (
-                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 3c-2.755 0-5.29.93-7.318 2.493A11.99 11.99 0 003 12c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-2.146-.564-4.16-1.382-6.016z" /></svg>
-                    )}
-                  </div>
-                  <h3 className="mt-6 font-semibold tracking-[-0.02em] text-slate-900">{title}</h3>
-                  <p className="mt-3 text-sm leading-6 text-[#586861]">{copy}</p>
+              ].map(([title, copy]) => (
+                <div
+                  key={title}
+                  className="flex min-h-[15rem] flex-col justify-center rounded-2xl border border-[#e3e9e5] bg-white p-7 shadow-[0_12px_30px_-30px_rgba(15,23,42,0.22)]"
+                >
+                  <h3 className="text-lg font-semibold tracking-[-0.02em] text-slate-900">{title}</h3>
+                  <p className="mt-4 text-sm leading-6 text-[#586861]">{copy}</p>
                 </div>
               ))}
             </div>
