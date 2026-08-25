@@ -11,12 +11,33 @@ import { buildBlockedSet, computeNextOpenDay, horizonEndIso } from '@/lib/availa
 
 export const revalidate = 60;
 
+type CarDetailSearchParams = {
+  start?: string;
+  end?: string;
+  city?: string;
+  type?: string;
+};
+
 export default async function CarDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<CarDetailSearchParams>;
 }) {
   const { id } = await params;
+  const search = searchParams instanceof Promise ? await searchParams : searchParams;
+  const requestedStart = search?.start;
+  const requestedEnd = search?.end;
+
+  const fleetParams = new URLSearchParams();
+  if (requestedStart) fleetParams.set('start', requestedStart);
+  if (requestedEnd) fleetParams.set('end', requestedEnd);
+  if (search?.city) fleetParams.set('city', search.city);
+  if (search?.type) fleetParams.set('type', search.type);
+  const fleetQuery = fleetParams.toString();
+  const fleetHref = `/listings${fleetQuery ? `?${fleetQuery}` : ''}`;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -80,7 +101,7 @@ export default async function CarDetailPage({
       <div className="mx-auto max-w-7xl px-4 pb-16 pt-8 sm:px-6 sm:pt-10 lg:px-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <Link
-            href="/listings"
+            href={fleetHref}
             className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-800 transition hover:text-emerald-950"
           >
             <span aria-hidden>←</span> Back to fleet
@@ -197,6 +218,8 @@ export default async function CarDetailPage({
                 nextAvailableDate={nextAvailableDate}
                 horizonEnd={horizonEnd}
                 isLoggedIn={Boolean(user)}
+                initialStartDate={requestedStart}
+                initialEndDate={requestedEnd}
               />
               <p className="mt-5 text-center text-xs leading-5 text-slate-400">Your booking is managed by Rental Car Connect. Support is available if plans change.</p>
             </div>
