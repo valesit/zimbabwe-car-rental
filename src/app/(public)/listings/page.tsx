@@ -90,6 +90,7 @@ export default async function ListingsPage({
 
     const filteredCars = (cars ?? []).filter((car) => carIds.includes(car.id));
     const resultLabel = `${filteredCars.length} ${filteredCars.length === 1 ? 'vehicle' : 'vehicles'}`;
+    const carriedSearch = { start, end, city, type: carType };
 
     return (
       <div className="min-h-[calc(100vh-4rem)] bg-[#f8faf8]">
@@ -140,7 +141,9 @@ export default async function ListingsPage({
             </div>
           ) : (
             <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filteredCars.map((car) => <CarCard key={car.id} car={car} />)}
+              {filteredCars.map((car) => (
+                <CarCard key={car.id} car={car} search={carriedSearch} />
+              ))}
             </div>
           )}
 
