@@ -7,14 +7,27 @@ import { carListingImageUrl } from '@/lib/carImages';
 
 interface CarCardProps {
   car: Pick<Car, 'id' | 'make' | 'model' | 'year' | 'car_type' | 'location_city' | 'daily_rate_usd' | 'image_urls' | 'description'>;
+  search?: {
+    start?: string;
+    end?: string;
+    city?: string;
+    type?: string;
+  };
 }
 
-export function CarCard({ car }: CarCardProps) {
+export function CarCard({ car, search }: CarCardProps) {
   const imageUrl = carListingImageUrl(car);
+  const params = new URLSearchParams();
+  if (search?.start) params.set('start', search.start);
+  if (search?.end) params.set('end', search.end);
+  if (search?.city) params.set('city', search.city);
+  if (search?.type) params.set('type', search.type);
+  const query = params.toString();
+  const detailHref = `/listings/${car.id}${query ? `?${query}` : ''}`;
 
   return (
     <Link
-      href={`/listings/${car.id}`}
+      href={detailHref}
       className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-[0_12px_35px_-24px_rgba(15,23,42,0.45)] transition duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-[0_20px_45px_-24px_rgba(15,23,42,0.45)]"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
