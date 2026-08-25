@@ -19,6 +19,8 @@ interface BookingFormProps {
   nextAvailableDate: string | null;
   horizonEnd: string;
   isLoggedIn: boolean;
+  initialStartDate?: string;
+  initialEndDate?: string;
 }
 
 export function BookingForm({
@@ -29,16 +31,25 @@ export function BookingForm({
   nextAvailableDate,
   horizonEnd,
   isLoggedIn,
+  initialStartDate,
+  initialEndDate,
 }: BookingFormProps) {
   const router = useRouter();
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  const blockedSet = useMemo(() => buildBlockedSet(availability), [availability]);
+  const todayStr = useMemo(() => toISODateLocal(new Date()), []);
+  const initialRange = useMemo(() => {
+    if (!initialStartDate || !initialEndDate) return { start: '', end: '' };
+    if (!isRangeEntirelyOpen(initialStartDate, initialEndDate, todayStr, horizonEnd, blockedSet)) {
+      return { start: '', end: '' };
+    }
+    return { start: initialStartDate, end: initialEndDate };
+  }, [initialStartDate, initialEndDate, todayStr, horizonEnd, blockedSet]);
+
+  const [startDate, setStartDate] = useState(initialRange.start);
+  const [endDate, setEndDate] = useState(initialRange.end);
   const [includePickupDropoff, setIncludePickupDropoff] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const blockedSet = useMemo(() => buildBlockedSet(availability), [availability]);
-  const todayStr = useMemo(() => toISODateLocal(new Date()), []);
 
   function getDaysBetween(start: string, end: string): number {
     const s = new Date(start).getTime();
@@ -50,8 +61,13 @@ export function BookingForm({
     return isRangeEntirelyOpen(start, end, todayStr, horizonEnd, blockedSet);
   }
 
-  const loginRedirect = `/login?redirect=${encodeURIComponent(`/listings/${carId}`)}`;
-  const signupRedirect = `/signup?redirect=${encodeURIComponent(`/listings/${carId}`)}`;
+  const returnParams = new URLSearchParams();
+  if (startDate) returnParams.set('start', startDate);
+  if (endDate) returnParams.set('end', endDate);
+  const returnQuery = returnParams.toString();
+  const returnPath = `/listings/${carId}${returnQuery ? `?${returnQuery}` : ''}`;
+  const loginRedirect = `/login?redirect=${encodeURIComponent(returnPath)}`;
+  const signupRedirect = `/signup?redirect=${encodeURIComponent(returnPath)}`;
 
   const canPay =
     isLoggedIn &&
@@ -69,13 +85,24 @@ export function BookingForm({
     days > 0
       ? computeBookingTotalUsd(dailyRate, days, includePickupDropoff, refundableDepositUsd)
       : 0;
+  const isUsingSearchDates =
+    Boolean(initialRange.start && initialRange.end) &&
+    startDate === initialRange.start &&
+    endDate === initialRange.end;
 
   const inputClass =
     'mt-2 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10';
 
   return (
     <div className="mt-5 space-y-5">
-      {nextAvailableDate ? (
+      {isUsingSearchDates ? (
+        <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 px-4 py-3">
+          <p className="text-sm font-semibold text-emerald-950">Your search dates are already selected.</p>
+          <p className="mt-1 text-xs leading-5 text-emerald-900/70">
+            {formatFriendlyDate(startDate)} → {formatFriendlyDate(endDate)}. You can adjust them below if your plans change.
+          </p>
+        </div>
+      ) : nextAvailableDate ? (
         <p className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-950">
           <span className="font-semibold">Next available:</span> {formatFriendlyDate(nextAvailableDate)}
         </p>
@@ -87,7 +114,7 @@ export function BookingForm({
 
       <div>
         <div className="mb-3 flex items-center justify-between gap-3">
-          <p className="text-sm font-semibold text-slate-900">Choose your dates</p>
+          <p className="text-sm font-semibold text-slate-900">{isUsingSearchDates ? 'Your dates' : 'Choose your dates'}</p>
           <p className="text-xs text-slate-400">Available dates only</p>
         </div>
         <AvailabilityCalendar
@@ -95,7 +122,7 @@ export function BookingForm({
           horizonEnd={horizonEnd}
           startDate={startDate}
           endDate={endDate}
-          initialVisibleMonth={nextAvailableDate}
+          initialVisibleMonth={startDate || nextAvailableDate}
           onRangeChange={(start, end) => {
             setStartDate(start);
             setEndDate(end);
@@ -183,7 +210,7 @@ export function BookingForm({
       {!isLoggedIn && paypalClientId ? (
         <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4 text-center">
           <p className="font-semibold text-emerald-950">Sign in to complete your booking</p>
-          <p className="mt-1.5 text-xs leading-5 text-emerald-900/70">Choose your dates above, then sign in to pay securely with PayPal.</p>
+          <p className="mt-1.5 text-xs leading-5 text-emerald-900/70">Your selected dates will be kept when you sign in to pay securely with PayPal.</p>
           <div className="mt-4 grid gap-2 sm:grid-cols-2">
             <Link
               href={loginRedirect}
