@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { CAR_TYPES, CAR_TYPE_LABELS, getCarTypeLabel } from '@/types/database';
+import { horizonEndIso, toISODateLocal } from '@/lib/availability';
+import { validateRentalSearchDates } from '@/lib/rental-search-dates';
 
 const DEFAULT_CITY_NAMES = ['Harare'];
 
@@ -22,11 +24,20 @@ export function ListingsFilters({ start = '', end = '', city = '', type = '', ci
   const [endDate, setEndDate] = useState(end);
   const [cityVal, setCityVal] = useState(city);
   const [carType, setCarType] = useState(type);
+  const [dateError, setDateError] = useState<string | null>(null);
+  const today = toISODateLocal(new Date());
+  const maxDate = horizonEndIso(today);
   const cityNames = cities?.length ? cities.map((c) => c.name) : DEFAULT_CITY_NAMES;
   const hasFilters = Boolean(startDate || endDate || cityVal || carType);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const validationError = validateRentalSearchDates(startDate, endDate, today);
+    if (validationError) {
+      setDateError(validationError);
+      return;
+    }
+    setDateError(null);
     const params = new URLSearchParams(searchParams.toString());
     if (startDate) params.set('start', startDate);
     else params.delete('start');
@@ -39,8 +50,7 @@ export function ListingsFilters({ start = '', end = '', city = '', type = '', ci
     router.push(`/listings?${params.toString()}`);
   }
 
-  const fieldClass =
-    'w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 hover:border-slate-300 focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10';
+  const fieldClass = 'rcc-field';
 
   return (
     <form
@@ -53,7 +63,14 @@ export function ListingsFilters({ start = '', end = '', city = '', type = '', ci
           <input
             type="date"
             value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
+            onChange={(e) => {
+              const next = e.target.value;
+              setStartDate(next);
+              if (next && endDate && endDate < next) setEndDate('');
+              setDateError(null);
+            }}
+            min={today}
+            max={maxDate}
             className={fieldClass}
           />
         </label>
@@ -62,8 +79,12 @@ export function ListingsFilters({ start = '', end = '', city = '', type = '', ci
           <input
             type="date"
             value={endDate}
-            min={startDate || undefined}
-            onChange={(e) => setEndDate(e.target.value)}
+            min={startDate || today}
+            max={maxDate}
+            onChange={(e) => {
+              setEndDate(e.target.value);
+              setDateError(null);
+            }}
             className={fieldClass}
           />
         </label>
@@ -87,7 +108,7 @@ export function ListingsFilters({ start = '', end = '', city = '', type = '', ci
         </label>
         <button
           type="submit"
-          className="inline-flex min-h-[46px] items-center justify-center gap-2 rounded-xl bg-emerald-800 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-900 focus:outline-none focus:ring-4 focus:ring-emerald-800/15 sm:col-span-2 xl:col-span-1"
+          className="rcc-primary-action shadow-sm sm:col-span-2 xl:col-span-1"
         >
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" />
@@ -95,6 +116,12 @@ export function ListingsFilters({ start = '', end = '', city = '', type = '', ci
           Search fleet
         </button>
       </div>
+
+      {dateError ? (
+        <p role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+          {dateError}
+        </p>
+      ) : null}
 
       {hasFilters ? (
         <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
