@@ -108,7 +108,7 @@ export default async function CarDetailPage({
           </Link>
           <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
             <span className="rounded-full bg-white px-3 py-1.5 ring-1 ring-slate-200">Managed fleet</span>
-            <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-800 ring-1 ring-emerald-100">Harare</span>
+            <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-emerald-800 ring-1 ring-emerald-100">{car.location_city}</span>
           </div>
         </div>
 
@@ -169,12 +169,6 @@ export default async function CarDetailPage({
               </div>
             </div>
 
-            <div className="mt-8 grid gap-4 sm:grid-cols-3">
-              <TrustItem title="Managed fleet" text="Listed and maintained by our rental team." />
-              <TrustItem title="Flexible dates" text="See availability before you confirm." />
-              <TrustItem title="Local support" text="Help is available throughout your rental." />
-            </div>
-
             <div className="mt-10 border-t border-slate-200/80 pt-8">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">About this car</p>
               <h2 className="font-display mt-2 text-2xl font-medium text-slate-950">Vehicle details</h2>
@@ -205,12 +199,8 @@ export default async function CarDetailPage({
                   </p>
                 </div>
               </div>
-              {Number(car.refundable_deposit_usd ?? 0) > 0 ? (
-                <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                  Refundable deposit: <span className="font-semibold text-slate-900">{formatDailyRateUsd(Number(car.refundable_deposit_usd))}</span>
-                </div>
-              ) : null}
               <BookingForm
+                key={`${car.id}-${requestedStart ?? ''}-${requestedEnd ?? ''}`}
                 carId={car.id}
                 dailyRate={Number(car.daily_rate_usd)}
                 refundableDepositUsd={Number(car.refundable_deposit_usd ?? 0)}
@@ -226,15 +216,6 @@ export default async function CarDetailPage({
           </aside>
         </section>
       </div>
-    </div>
-  );
-}
-
-function TrustItem({ title, text }: { title: string; text: string }) {
-  return (
-    <div className="rounded-2xl border border-slate-200/70 bg-white/80 p-4">
-      <p className="font-semibold text-slate-900">{title}</p>
-      <p className="mt-1.5 text-xs leading-5 text-slate-500">{text}</p>
     </div>
   );
 }
