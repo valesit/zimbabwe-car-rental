@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { CarCard } from '@/components/CarCard';
 import { ListingsFilters } from '@/components/ListingsFilters';
 import { hasOpenDayInHorizon, horizonEndIso } from '@/lib/availability';
+import { validateRentalSearchDates } from '@/lib/rental-search-dates';
 
 export const revalidate = 60;
 
@@ -51,9 +52,10 @@ export default async function ListingsPage({
 
     const today = new Date().toISOString().slice(0, 10);
     const horizonEnd = horizonEndIso(today);
+    const dateValidation = validateRentalSearchDates(start ?? '', end ?? '', today);
 
     let carIds = (cars ?? []).map((car) => car.id);
-    if (start && end && carIds.length > 0) {
+    if (start && end && !dateValidation && carIds.length > 0) {
       const startDate = new Date(start);
       const endDate = new Date(end);
       const days: string[] = [];
@@ -90,26 +92,32 @@ export default async function ListingsPage({
 
     const filteredCars = (cars ?? []).filter((car) => carIds.includes(car.id));
     const resultLabel = `${filteredCars.length} ${filteredCars.length === 1 ? 'vehicle' : 'vehicles'}`;
-    const carriedSearch = { start, end, city, type: carType };
+    const carriedSearch = { start: dateValidation ? undefined : start, end: dateValidation ? undefined : end, city, type: carType };
 
     return (
       <div className="min-h-[calc(100vh-4rem)] bg-[#f8faf8]">
         <section className="border-b border-slate-200/70 bg-gradient-to-b from-emerald-50/55 to-[#f8faf8]">
           <div className="mx-auto max-w-7xl px-4 pb-8 pt-10 sm:px-6 sm:pb-10 sm:pt-14 lg:px-8">
-            <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
+            <div className="flex flex-col gap-8">
               <div className="max-w-3xl">
                 <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-700">Our fleet</p>
                 <h1 className="font-display mt-3 text-4xl font-medium tracking-[-0.035em] text-slate-950 sm:text-5xl lg:text-[3.5rem]">Find a car that fits your journey.</h1>
                 <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">Choose your dates, compare available vehicles and book with confidence. Every car is managed through Rental Car Connect.</p>
               </div>
-              <div className="grid grid-cols-3 gap-2 text-center text-xs text-slate-500 lg:w-[360px]">
-                <TrustPill title="Managed" detail="Fleet" />
-                <TrustPill title="Clear" detail="Pricing" />
-                <TrustPill title="Local" detail="Support" />
-              </div>
             </div>
             <div className="mt-8">
-              <ListingsFilters start={start} end={end} city={city} type={carType} cities={cities ?? undefined} />
+              <ListingsFilters
+                start={dateValidation ? undefined : start}
+                end={dateValidation ? undefined : end}
+                city={city}
+                type={carType}
+                cities={cities ?? undefined}
+              />
+              {dateValidation ? (
+                <p role="alert" className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+                  {dateValidation} Showing cars without a date filter. Please select valid dates above.
+                </p>
+              ) : null}
             </div>
           </div>
         </section>
@@ -139,8 +147,26 @@ export default async function ListingsPage({
               <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">Try adjusting your travel dates or vehicle type to see more of the fleet.</p>
               <Link href="/listings" className="mt-6 inline-flex items-center rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-emerald-200 hover:text-emerald-800">View all cars</Link>
             </div>
+          ) : filteredCars.length === 1 ? (
+            <div className="mt-8 grid max-w-5xl gap-6 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
+              <CarCard car={filteredCars[0]} search={carriedSearch} />
+              <div className="flex flex-col justify-center rounded-2xl bg-[#f0f6f2] px-7 py-8 sm:px-10">
+                <h3 className="font-display text-2xl font-medium text-[#173d2e] sm:text-3xl">
+                  One car matches your search.
+                </h3>
+                <p className="mt-3 max-w-md text-sm leading-7 text-[#465d50]">
+                  Want to see more options? Try different dates or clear your filters to explore the fleet.
+                </p>
+                <Link href="/listings" className="mt-6 inline-flex w-fit items-center rounded-xl border border-[#b9d5c4] bg-white px-5 py-3 text-sm font-semibold text-[#176447] transition hover:bg-[#e7f1ea]">
+                  Explore other dates
+                </Link>
+              </div>
+            </div>
           ) : (
-            <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className={filteredCars.length === 2
+              ? "mt-8 grid max-w-4xl gap-6 sm:grid-cols-2"
+              : "mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+            }>
               {filteredCars.map((car) => (
                 <CarCard key={car.id} car={car} search={carriedSearch} />
               ))}
@@ -162,11 +188,3 @@ export default async function ListingsPage({
   }
 }
 
-function TrustPill({ title, detail }: { title: string; detail: string }) {
-  return (
-    <div className="rounded-2xl border border-emerald-100 bg-white/80 px-3 py-3 shadow-sm">
-      <p className="font-semibold text-emerald-950">{title}</p>
-      <p className="mt-0.5 text-[11px] text-slate-400">{detail}</p>
-    </div>
-  );
-}
