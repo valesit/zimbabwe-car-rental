@@ -46,7 +46,9 @@ export function CarCard({ car, search }: CarCardProps) {
             <h2 className="font-semibold tracking-[-0.02em] text-slate-900">
               {car.make} {car.model} ({car.year})
             </h2>
-            <p className="mt-1 text-sm text-slate-500">{getCarTypeLabel(car.car_type)}</p>
+            <p className="mt-1 text-sm text-slate-500">
+              {getCarTypeLabel(car.car_type)} · {car.location_city}
+            </p>
           </div>
           <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.08em] text-emerald-700">
             Available
