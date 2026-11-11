@@ -18,7 +18,7 @@ const playfair = Playfair_Display({
 
 export const metadata: Metadata = {
   title: "Rental Car Connect",
-  description: "Rent a reliable car in Harare with flexible dates, clear pricing, and local support.",
+  description: "Find and book reliable cars across Zimbabwe with clear pricing, flexible dates, and dependable local support.",
 };
 
 export default function RootLayout({
