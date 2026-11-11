@@ -3,24 +3,66 @@
 @tailwind utilities;
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --accent: #0d9488;
-  --accent-hover: #0f766e;
+  /* Existing Rental Car Connect palette, exposed as reusable design tokens. */
+  --background: #fbfcfb;
+  --foreground: #17271f;
+  --accent: #176447;
+  --accent-hover: #125239;
+  --brand-muted: #52635a;
+  --brand-border: #dfe6e2;
+  --brand-surface: #f8faf8;
 }
 
-/* Keep UI light and readable even when OS prefers dark mode (inputs & text stay legible). */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #f8fafc;
-    --foreground: #0f172a;
-  }
+/* The rental experience is deliberately light even with OS dark mode enabled. */
+html {
+  color-scheme: light;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--font-brand), ui-sans-serif, system-ui, sans-serif;
+}
+
+::selection {
+  color: #0f2f23;
+  background: #d5ebe0;
+}
+
+@layer components {
+  .rcc-field {
+    @apply h-14 w-full rounded-2xl border bg-white px-4 text-[15px] font-medium outline-none transition;
+    border-color: var(--brand-border);
+    color: var(--foreground);
+  }
+
+  .rcc-field:hover {
+    border-color: #c6d5cc;
+  }
+
+  .rcc-field:focus-visible {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px rgba(23, 100, 71, 0.12);
+  }
+
+  .rcc-primary-action {
+    @apply inline-flex min-h-14 items-center justify-center gap-2.5 rounded-2xl px-6 text-[15px] font-semibold text-white transition;
+    background-color: var(--accent);
+  }
+
+  .rcc-primary-action:hover {
+    background-color: var(--accent-hover);
+  }
+
+  .rcc-primary-action:focus-visible {
+    outline: 3px solid #9dc9b2;
+    outline-offset: 2px;
+  }
+
+  .rcc-primary-action:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
 }
 
 @layer utilities {
