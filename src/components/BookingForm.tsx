@@ -47,6 +47,10 @@ export function BookingForm({
 
   const [startDate, setStartDate] = useState(initialRange.start);
   const [endDate, setEndDate] = useState(initialRange.end);
+  // Search dates are ready to review; reveal the calendar only on request.
+  const [dateEditorOpen, setDateEditorOpen] = useState(
+    !initialRange.start || !initialRange.end,
+  );
   const [includePickupDropoff, setIncludePickupDropoff] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -85,22 +89,32 @@ export function BookingForm({
     days > 0
       ? computeBookingTotalUsd(dailyRate, days, includePickupDropoff, refundableDepositUsd)
       : 0;
-  const isUsingSearchDates =
-    Boolean(initialRange.start && initialRange.end) &&
-    startDate === initialRange.start &&
-    endDate === initialRange.end;
+  const hasValidRange =
+    Boolean(startDate && endDate) && isRangeAvailable(startDate, endDate);
 
-  const inputClass =
-    'mt-2 w-full rounded-xl border border-slate-200 bg-white px-3.5 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10';
+  const inputClass = 'rcc-field mt-2';
 
   return (
     <div className="mt-5 space-y-5">
-      {isUsingSearchDates ? (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 px-4 py-3">
-          <p className="text-sm font-semibold text-emerald-950">Your search dates are already selected.</p>
-          <p className="mt-1 text-xs leading-5 text-emerald-900/70">
-            {formatFriendlyDate(startDate)} → {formatFriendlyDate(endDate)}. You can adjust them below if your plans change.
-          </p>
+      {hasValidRange ? (
+        <div className="rounded-2xl border border-[#dfe6e2] bg-[#f7faf8] px-4 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold text-[#597367]">Your rental dates</p>
+              <p className="mt-1 text-sm font-semibold leading-6 text-[#173d2e]">
+                {formatFriendlyDate(startDate)} – {formatFriendlyDate(endDate)}
+              </p>
+            </div>
+            <button
+              type="button"
+              aria-expanded={dateEditorOpen}
+              aria-controls="rental-date-editor"
+              onClick={() => setDateEditorOpen((open) => !open)}
+              className="rounded-xl border border-[#bedacb] bg-white px-3.5 py-2 text-sm font-semibold text-[#176447] transition hover:bg-[#eaf5ed] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176447]"
+            >
+              {dateEditorOpen ? 'Hide calendar' : 'Change dates'}
+            </button>
+          </div>
         </div>
       ) : nextAvailableDate ? (
         <p className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-950">
@@ -112,49 +126,64 @@ export function BookingForm({
         </p>
       )}
 
-      <div>
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <p className="text-sm font-semibold text-slate-900">{isUsingSearchDates ? 'Your dates' : 'Choose your dates'}</p>
-          <p className="text-xs text-slate-400">Available dates only</p>
-        </div>
-        <AvailabilityCalendar
-          availability={availability}
-          horizonEnd={horizonEnd}
-          startDate={startDate}
-          endDate={endDate}
-          initialVisibleMonth={startDate || nextAvailableDate}
-          onRangeChange={(start, end) => {
-            setStartDate(start);
-            setEndDate(end);
-            setError(null);
-          }}
-        />
-      </div>
+      {dateEditorOpen ? (
+        <div id="rental-date-editor" className="space-y-4">
+          <div>
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <p className="text-sm font-semibold text-slate-900">Choose your dates</p>
+              <p className="text-xs text-[#52635a]">Available dates only</p>
+            </div>
+            <AvailabilityCalendar
+              availability={availability}
+              horizonEnd={horizonEnd}
+              startDate={startDate}
+              endDate={endDate}
+              initialVisibleMonth={startDate || nextAvailableDate}
+              onRangeChange={(start, end) => {
+                setStartDate(start);
+                setEndDate(end);
+                setError(null);
+                if (end && isRangeAvailable(start, end)) {
+                  setDateEditorOpen(false);
+                }
+              }}
+            />
+          </div>
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500">Pick-up</span>
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            min={todayStr}
-            max={horizonEnd}
-            className={inputClass}
-          />
-        </label>
-        <label className="block">
-          <span className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500">Return</span>
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            min={startDate || todayStr}
-            max={horizonEnd}
-            className={inputClass}
-          />
-        </label>
-      </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="text-xs font-semibold uppercase tracking-[0.1em] text-[#52635a]">Pick-up</span>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  setStartDate(next);
+                  if (next && endDate && endDate < next) setEndDate('');
+                  setError(null);
+                }}
+                min={todayStr}
+                max={horizonEnd}
+                className={inputClass}
+              />
+            </label>
+            <label className="block">
+              <span className="text-xs font-semibold uppercase tracking-[0.1em] text-[#52635a]">Return</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                  setError(null);
+                }}
+                min={startDate || todayStr}
+                max={horizonEnd}
+                className={inputClass}
+              />
+            </label>
+          </div>
+        </div>
+      ) : null}
 
       {days > 0 ? (
         <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
