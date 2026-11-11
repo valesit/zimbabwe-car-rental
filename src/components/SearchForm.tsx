@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { CAR_TYPES, CAR_TYPE_LABELS } from '@/types/database';
+import { horizonEndIso, toISODateLocal } from '@/lib/availability';
+import { validateRentalSearchDates } from '@/lib/rental-search-dates';
 
 const DEFAULT_CITIES = [{ name: 'Harare' }];
 
@@ -15,11 +17,20 @@ export function SearchForm({ cities }: { cities?: { name: string }[] }) {
   const [endDate, setEndDate] = useState(searchParams.get('end') ?? '');
   const [city, setCity] = useState(searchParams.get('city') ?? 'Harare');
   const [carType, setCarType] = useState(searchParams.get('type') ?? '');
+  const [dateError, setDateError] = useState<string | null>(null);
+  const today = toISODateLocal(new Date());
+  const maxDate = horizonEndIso(today);
 
   const cityOptions = cities?.length ? cities : DEFAULT_CITIES;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    const validationError = validateRentalSearchDates(startDate, endDate, today);
+    if (validationError) {
+      setDateError(validationError);
+      return;
+    }
+    setDateError(null);
     const params = new URLSearchParams();
     if (startDate) params.set('start', startDate);
     if (endDate) params.set('end', endDate);
@@ -28,8 +39,7 @@ export function SearchForm({ cities }: { cities?: { name: string }[] }) {
     router.push(`/listings?${params.toString()}`);
   }
 
-  const fieldClass =
-    'h-14 w-full rounded-2xl border border-[#dfe6e2] bg-white px-4 text-[15px] font-medium text-[#253a32] outline-none transition placeholder:text-[#87938e] hover:border-[#cbd8d1] focus:border-[#3b8a69] focus:ring-4 focus:ring-emerald-700/10';
+  const fieldClass = 'rcc-field';
 
   return (
     <form
@@ -41,7 +51,14 @@ export function SearchForm({ cities }: { cities?: { name: string }[] }) {
         <input
           type="date"
           value={startDate}
-          onChange={(e) => setStartDate(e.target.value)}
+          onChange={(e) => {
+            const next = e.target.value;
+            setStartDate(next);
+            if (next && endDate && endDate < next) setEndDate('');
+            setDateError(null);
+          }}
+          min={today}
+          max={maxDate}
           className={fieldClass}
         />
       </label>
@@ -51,7 +68,12 @@ export function SearchForm({ cities }: { cities?: { name: string }[] }) {
         <input
           type="date"
           value={endDate}
-          onChange={(e) => setEndDate(e.target.value)}
+          onChange={(e) => {
+            setEndDate(e.target.value);
+            setDateError(null);
+          }}
+          min={startDate || today}
+          max={maxDate}
           className={fieldClass}
         />
       </label>
@@ -82,7 +104,7 @@ export function SearchForm({ cities }: { cities?: { name: string }[] }) {
       <div className="flex sm:col-span-2 lg:col-span-3 lg:justify-end">
         <button
           type="submit"
-          className="inline-flex h-14 w-full items-center justify-center gap-2.5 rounded-2xl bg-[#176447] px-7 text-[15px] font-semibold text-white shadow-[0_12px_28px_-16px_rgba(18,88,62,0.52)] transition hover:bg-[#125239] focus:outline-none focus:ring-4 focus:ring-emerald-700/15 lg:w-auto lg:min-w-[11.5rem]"
+          className="rcc-primary-action w-full shadow-[0_12px_28px_-16px_rgba(18,88,62,0.52)] lg:w-auto lg:min-w-[11.5rem]"
         >
           Search cars
           <svg className="h-[18px] w-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -90,6 +112,12 @@ export function SearchForm({ cities }: { cities?: { name: string }[] }) {
           </svg>
         </button>
       </div>
+
+      {dateError ? (
+        <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 sm:col-span-2 lg:col-span-12">
+          {dateError}
+        </p>
+      ) : null}
 
       <p className="pt-1 text-center text-sm text-[#496057] sm:col-span-2 lg:col-span-12">
         Looking for an airport pickup or drop-off?{' '}
